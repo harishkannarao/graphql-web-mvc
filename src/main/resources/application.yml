@@ -1,10 +1,20 @@
+server:
+  servlet:
+    context-path: '/graphql-web-mvc'
+
 spring:
   threads:
     virtual:
       enabled: true
   graphql:
     path: "/graphql"
+    graphiql:
+      enabled: false
+    schema:
+      locations: "classpath:graphql/**/"
+      printer:
+        enabled: true
     cors:
-      allowed-origins: "${CORS_ORIGINS:http://localhost:8080,http://127.0.0.1:8080}"
+      allowed-origin-patterns: "${CORS_ORIGINS_PATTERNS:http://localhost:*,http://127.0.0.1:*}"
       allowed-methods: "GET,POST"
       max-age: "1800s"
