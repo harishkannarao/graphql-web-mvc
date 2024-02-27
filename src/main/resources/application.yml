@@ -15,6 +15,6 @@ spring:
       printer:
         enabled: true
     cors:
-      allowed-origin-patterns: "${CORS_ORIGINS_PATTERNS:http://localhost:*,http://127.0.0.1:*}"
+      allowed-origin-patterns: "${CORS_ORIGINS_PATTERNS:http://localhost:*,http://127.0.0.1:*,https://*.example.com}"
       allowed-methods: "GET,POST"
       max-age: "1800s"
