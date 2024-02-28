@@ -11,9 +11,9 @@ public class GraphQlConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(GraphQlConfiguration.class);
 
-   /* @Bean
+    @Bean
     public GraphQlSourceBuilderCustomizer sourceBuilderCustomizer() {
         return (builder) ->
                 builder.inspectSchemaMappings(schemaReport -> logger.info(schemaReport.toString()));
-    }*/
+    }
 }
