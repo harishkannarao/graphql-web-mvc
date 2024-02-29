@@ -1,0 +1,4 @@
+test:
+  application:
+    baseUrl: "http://localhost:${server.port}${server.servlet.context-path}"
+    graphqlUrl: "${test.application.baseUrl}/graphql"
