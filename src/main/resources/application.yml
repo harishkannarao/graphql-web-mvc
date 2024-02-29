@@ -18,3 +18,7 @@ spring:
       allowed-origin-patterns: "${CORS_ORIGINS_PATTERNS:http://localhost:*,http://127.0.0.1:*,https://*.example.com}"
       allowed-methods: "GET,POST"
       max-age: "1800s"
+
+tee:
+  filter:
+    enabled: "${TEE_FILTER_ENABLED:false}"
