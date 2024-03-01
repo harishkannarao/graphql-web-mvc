@@ -3,23 +3,31 @@ package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GreetingQueryTest extends AbstractBaseIntegrationTest {
 
-    private final String graphqlUrl;
+    private final HttpGraphQlTester httpGraphQlTester;
 
     @Autowired
     public GreetingQueryTest(
-            @Value("${test.application.graphqlUrl}") String graphqlUrl
+            HttpGraphQlTester httpGraphQlTester
     ) {
-        this.graphqlUrl = graphqlUrl;
+        this.httpGraphQlTester = httpGraphQlTester;
     }
 
     @Test
     public void test_greeting_query_with_parameters() {
-        assertThat(graphqlUrl).isNotBlank();
+        String inputName = "hello";
+        String result = httpGraphQlTester.documentName("queryGreeting")
+                .variable("name", inputName)
+                .execute()
+                .path("greeting")
+                .entity(String.class)
+                .get();
+
+        assertThat(result).isEqualTo("Hello, %s!".formatted(inputName));
     }
 }
