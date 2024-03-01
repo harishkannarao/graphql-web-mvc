@@ -3,9 +3,6 @@ test:
     baseUrl: "http://localhost:${server.port}${server.servlet.context-path}"
     graphqlUrl: "${test.application.baseUrl}/graphql"
 
-logging:
-  level:
-    reactor:
-      netty:
-        http:
-          client: "DEBUG"
+tee:
+  filter:
+    enabled: "true"
