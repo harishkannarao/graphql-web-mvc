@@ -22,7 +22,7 @@ public class GreetingQueryTest extends AbstractBaseIntegrationTest {
     @Test
     public void test_greeting_query_with_parameters() {
         String inputName = "hello";
-        String result = httpGraphQlTester.documentName("queryGreeting")
+        String result = httpGraphQlTester.documentName("query/queryGreeting")
                 .variable("name", inputName)
                 .execute()
                 .path("greeting")
@@ -31,7 +31,7 @@ public class GreetingQueryTest extends AbstractBaseIntegrationTest {
 
         assertThat(result).isEqualTo("Hello, %s!".formatted(inputName));
 
-        String document = FileReaderUtil.readFile("graphql-test/queryGreeting.graphql");
+        String document = FileReaderUtil.readFile("graphql-test/query/queryGreeting.graphql");
         assertThat(document).isEqualTo("query Greeting($name: String!) {\n    greeting(name: $name)\n}");
     }
 }
