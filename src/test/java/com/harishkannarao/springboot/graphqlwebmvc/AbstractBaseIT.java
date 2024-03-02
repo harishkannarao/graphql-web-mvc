@@ -10,7 +10,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = DEFINED_PORT)
 @ActiveProfiles("it")
-public abstract class AbstractBaseIntegrationTest {
+public abstract class AbstractBaseIT {
 
     @DynamicPropertySource
     static void registerTestProperties(DynamicPropertyRegistry registry) {

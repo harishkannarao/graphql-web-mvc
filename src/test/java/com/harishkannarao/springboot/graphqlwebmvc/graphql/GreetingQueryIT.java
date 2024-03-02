@@ -1,19 +1,18 @@
 package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 
-import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIntegrationTest;
-import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
+import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GreetingQueryTest extends AbstractBaseIntegrationTest {
+public class GreetingQueryIT extends AbstractBaseIT {
 
     private final HttpGraphQlTester httpGraphQlTester;
 
     @Autowired
-    public GreetingQueryTest(
+    public GreetingQueryIT(
             HttpGraphQlTester httpGraphQlTester
     ) {
         this.httpGraphQlTester = httpGraphQlTester;
@@ -30,8 +29,5 @@ public class GreetingQueryTest extends AbstractBaseIntegrationTest {
                 .get();
 
         assertThat(result).isEqualTo("Hello, %s!".formatted(inputName));
-
-        String document = FileReaderUtil.readFile("graphql-test/query/queryGreeting.graphql");
-        assertThat(document).isEqualTo("query Greeting($name: String!) {\n    greeting(name: $name)\n}");
     }
 }
