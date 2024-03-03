@@ -1,0 +1,4 @@
+query PartialErrorGreeting($name: String!) {
+    greetingWithName: greeting(name: $name)
+    greetingWithBlankName: greeting(name: "    ")
+}

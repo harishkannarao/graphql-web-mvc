@@ -63,4 +63,19 @@ public class GreetingQueryIT extends AbstractBaseIT {
 
         assertThat(greetingWithoutName).isEqualTo("Hello, Spring!");
     }
+
+    @Test
+    public void test_greeting_returns_error_on_blank_name() {
+        String inputName = "hello";
+        GraphQlTester.Response result = httpGraphQlTester.documentName("query/queryGreetingWithConstraintError")
+                .variable("name", inputName)
+                .execute();
+
+        result.errors()
+                .satisfy(errors -> assertThat(errors)
+                        .anySatisfy(error -> {
+                            assertThat(error.getMessage()).isEqualTo("/greetingWithBlankName/name must not be blank");
+                            assertThat(error.getPath()).isEqualTo("greetingWithBlankName");
+                        }));
+    }
 }

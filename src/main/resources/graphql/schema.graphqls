@@ -1,3 +1,5 @@
+directive @NotBlank on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 type Query {
-    greeting(name: String! = "Spring"): String!
+    greeting(name: String! = "Spring" @NotBlank): String!
 }

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Controller;
 public class GreetingController {
 
     @QueryMapping(name = "greeting")
-    public String handleGreeting(@Argument(name = "name") String inputName) {
+    public String handleGreeting(
+            @Argument(name = "name")
+            String inputName) {
         return "Hello, " + inputName + "!";
     }
 }
