@@ -1,0 +1,4 @@
+query MultipleGreetings($name: String!) {
+    greetingWithName: greeting(name: $name)
+    greetingWithoutName: greeting
+}
