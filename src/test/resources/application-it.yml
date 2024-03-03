@@ -6,3 +6,10 @@ test:
 tee:
   filter:
     enabled: "true"
+
+logging:
+  level:
+    reactor:
+      netty:
+        http:
+          client: "DEBUG"
