@@ -78,4 +78,19 @@ public class GreetingQueryIT extends AbstractBaseIT {
                             assertThat(error.getPath()).isEqualTo("greetingWithBlankName");
                         }));
     }
+
+    @Test
+    public void test_greeting_returns_error_if_name_more_than_6_characters() {
+        String inputName = "hello there";
+        GraphQlTester.Response result = httpGraphQlTester.documentName("query/queryGreetingWithParam")
+                .variable("name", inputName)
+                .execute();
+
+        result.errors()
+                .satisfy(errors -> assertThat(errors)
+                        .anySatisfy(error -> {
+                            assertThat(error.getMessage()).isEqualTo("/greeting/name must match \".{0,6}\"");
+                            assertThat(error.getPath()).isEqualTo("greeting");
+                        }));
+    }
 }
