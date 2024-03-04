@@ -82,7 +82,8 @@ public class GreetingQueryIT extends AbstractBaseIT {
 	@Test
 	public void test_greeting_returns_error_if_name_more_than_6_characters() {
 		String inputName = "hello there";
-		GraphQlTester.Response result = httpGraphQlTester.documentName("query/queryGreetingWithParam")
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryGreetingWithParam")
 			.variable("name", inputName)
 			.execute();
 

@@ -22,3 +22,9 @@ spring:
 tee:
   filter:
     enabled: "${TEE_FILTER_ENABLED:false}"
+
+logging:
+  level:
+    web: INFO
+  pattern:
+    console: '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %X{x_request_id:-no_request_id} %m %wEx %n'
