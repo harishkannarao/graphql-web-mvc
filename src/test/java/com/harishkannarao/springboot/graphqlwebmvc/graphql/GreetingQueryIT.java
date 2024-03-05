@@ -91,8 +91,8 @@ public class GreetingQueryIT extends AbstractBaseIT {
 	}
 
 	@Test
-	public void test_greeting_returns_error_if_name_more_than_6_characters() {
-		String inputName = "hello there";
+	public void test_greeting_returns_validation_error_if_name_more_than_11_characters() {
+		String inputName = "a looooooooong input";
 		GraphQlTester.Response result = httpGraphQlTester
 			.documentName("query/queryGreetingWithParam")
 			.variable("name", inputName)
@@ -101,7 +101,7 @@ public class GreetingQueryIT extends AbstractBaseIT {
 		result.errors()
 			.satisfy(errors -> assertThat(errors)
 				.anySatisfy(error -> {
-					assertThat(error.getMessage()).isEqualTo("/greeting/name must match \".{0,6}\"");
+					assertThat(error.getMessage()).isEqualTo("/greeting/name must match \".{0,11}\"");
 					assertThat(error.getPath()).isEqualTo("greeting");
 				}));
 	}
