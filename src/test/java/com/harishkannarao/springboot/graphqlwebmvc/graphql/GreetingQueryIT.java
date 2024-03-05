@@ -1,10 +1,13 @@
 package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
+import com.harishkannarao.springboot.graphqlwebmvc.util.Constants;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,14 +25,15 @@ public class GreetingQueryIT extends AbstractBaseIT {
 	@Test
 	public void test_greeting_query_with_parameters() {
 		String inputName = "hello";
-		String result = httpGraphQlTester.documentName("query/queryGreetingWithParam")
+		String result = httpGraphQlTester
+			.documentName("query/queryGreetingWithParam")
 			.variable("name", inputName)
 			.execute()
 			.path("greeting")
 			.entity(String.class)
 			.get();
 
-		assertThat(result).isEqualTo("Hello, %s!".formatted(inputName));
+		assertThat(result).contains("Hello, %s!".formatted(inputName));
 	}
 
 	@Test
@@ -40,13 +44,18 @@ public class GreetingQueryIT extends AbstractBaseIT {
 			.entity(String.class)
 			.get();
 
-		assertThat(result).isEqualTo("Hello, Spring!");
+		assertThat(result).contains("Hello, Spring!");
 	}
 
 	@Test
 	public void test_greeting_with_alias() {
 		String inputName = "hello";
-		GraphQlTester.Response result = httpGraphQlTester.documentName("query/queryGreetingWithAlias")
+		String requestId = UUID.randomUUID().toString();
+		GraphQlTester.Response result = httpGraphQlTester
+			.mutate()
+			.header(Constants.X_REQUEST_ID, requestId)
+			.build()
+			.documentName("query/queryGreetingWithAlias")
 			.variable("name", inputName)
 			.execute();
 		String greetingWithName = result
@@ -54,14 +63,16 @@ public class GreetingQueryIT extends AbstractBaseIT {
 			.entity(String.class)
 			.get();
 
-		assertThat(greetingWithName).isEqualTo("Hello, %s!".formatted(inputName));
+		assertThat(greetingWithName).contains("Hello, %s!".formatted(inputName));
+		assertThat(greetingWithName).contains(requestId);
 
 		String greetingWithoutName = result
 			.path("greetingWithoutName")
 			.entity(String.class)
 			.get();
 
-		assertThat(greetingWithoutName).isEqualTo("Hello, Spring!");
+		assertThat(greetingWithoutName).contains("Hello, Spring!");
+		assertThat(greetingWithoutName).contains(requestId);
 	}
 
 	@Test

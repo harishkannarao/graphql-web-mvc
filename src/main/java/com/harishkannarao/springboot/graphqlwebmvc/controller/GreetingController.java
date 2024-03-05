@@ -3,8 +3,8 @@ package com.harishkannarao.springboot.graphqlwebmvc.controller;
 import com.harishkannarao.springboot.graphqlwebmvc.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
@@ -15,10 +15,10 @@ public class GreetingController {
 
 	@QueryMapping(name = "greeting")
 	public String handleGreeting(
-		@Argument(name = "name")
-		String inputName) {
+		@Argument(name = "name") final String inputName,
+		@ContextValue(name = Constants.X_REQUEST_ID) final String requestId) {
 		logger.info("Generating greeting for input {} with request id {}",
-			inputName, MDC.get(Constants.X_REQUEST_ID));
-		return "Hello, " + inputName + "!";
+			inputName, requestId);
+		return "Hello, %s! with requestId %s".formatted(inputName, requestId);
 	}
 }
