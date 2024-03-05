@@ -9,9 +9,9 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class GreetingController {
+public class GreetingGraphqlController {
 
-	private final Logger logger = LoggerFactory.getLogger(GreetingController.class);
+	private final Logger logger = LoggerFactory.getLogger(GreetingGraphqlController.class);
 
 	@QueryMapping(name = "greeting")
 	public String handleGreeting(
