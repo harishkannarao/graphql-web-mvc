@@ -1,12 +1,16 @@
 package com.harishkannarao.springboot.graphqlwebmvc.exception;
 
 import graphql.GraphQLError;
+import graphql.execution.ResultPath;
+import graphql.language.SourceLocation;
 import graphql.schema.DataFetchingEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+
+import java.util.List;
 
 @ControllerAdvice
 public class GlobalGraphqlExceptionHandler {
@@ -21,6 +25,7 @@ public class GlobalGraphqlExceptionHandler {
 		logger.error(message, ex);
 		return GraphQLError.newError()
 			.errorType(ErrorType.BAD_REQUEST)
+			.path(dataFetchingEnvironment.getExecutionStepInfo().getPath())
 			.message(message)
 			.build();
 	}
