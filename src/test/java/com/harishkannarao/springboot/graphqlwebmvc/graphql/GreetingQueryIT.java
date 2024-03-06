@@ -131,4 +131,23 @@ public class GreetingQueryIT extends AbstractBaseIT {
 			.path("greetingWithName")
 			.valueIsNull();
 	}
+
+	@Test
+	public void test_greeting_with_include_and_skip_directives() {
+		String inputName = "throw-error";
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryGreetingWithAlias")
+			.variable("name", inputName)
+			.variable("includeWithName", Boolean.FALSE)
+			.variable("skipWithoutName", Boolean.TRUE)
+			.execute();
+
+		result
+			.errors()
+			.satisfy(errors -> assertThat(errors).isEmpty())
+			.path("greetingWithName")
+			.pathDoesNotExist()
+			.path("greetingWithoutName")
+			.pathDoesNotExist();
+	}
 }

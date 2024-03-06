@@ -1,4 +1,8 @@
-query MultipleGreetings($name: String!) {
-    greetingWithName: greeting(name: $name)
-    greetingWithoutName: greeting
+query MultipleGreetings(
+    $name: String!,
+    $includeWithName: Boolean! = true,
+    $skipWithoutName: Boolean! = false
+) {
+    greetingWithName: greeting(name: $name) @include(if: $includeWithName)
+    greetingWithoutName: greeting @skip(if: $skipWithoutName)
 }
