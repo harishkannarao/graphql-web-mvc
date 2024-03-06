@@ -9,5 +9,5 @@ type Query {
     Operation that returns greeting with name.
     If name is not provided, then it is defaulted to 'Spring'
     """
-    greeting(name: String! = "Spring" @NotBlank @Pattern(regexp: ".{0,11}")): String!
+    greeting(name: String! = "Spring" @NotBlank @Pattern(regexp: ".{0,11}")): String
 }
