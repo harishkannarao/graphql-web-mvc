@@ -105,4 +105,30 @@ public class GreetingQueryIT extends AbstractBaseIT {
 					assertThat(error.getPath()).isEqualTo("greeting");
 				}));
 	}
+
+	@Test
+	public void test_greeting_returns_partial_error() {
+		String inputName = "throw-error";
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryGreetingWithAlias")
+			.variable("name", inputName)
+			.execute();
+
+		String greetingWithoutName = result
+			.errors()
+			.satisfy(errors -> {})
+			.path("greetingWithoutName")
+			.entity(String.class)
+			.get();
+		assertThat(greetingWithoutName).contains("Hello, Spring!");
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Artificial Error !!!");
+					assertThat(error.getPath()).isEqualTo("greetingWithName");
+				}))
+			.path("greetingWithName")
+			.valueIsNull();
+	}
 }
