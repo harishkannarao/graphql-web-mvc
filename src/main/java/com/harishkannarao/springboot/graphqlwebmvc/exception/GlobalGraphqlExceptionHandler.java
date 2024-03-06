@@ -25,6 +25,7 @@ public class GlobalGraphqlExceptionHandler {
 		logger.error(message, ex);
 		return GraphQLError.newError()
 			.errorType(ErrorType.BAD_REQUEST)
+			.location(dataFetchingEnvironment.getOperationDefinition().getSelectionSet().getSourceLocation())
 			.path(dataFetchingEnvironment.getExecutionStepInfo().getPath())
 			.message(message)
 			.build();
