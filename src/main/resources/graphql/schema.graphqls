@@ -16,7 +16,7 @@ type Mutation {
     """
     Operation to create book and return the created book.
     """
-    createBook(book: CreateBook!): CreateBookResponse
+    createBook(book: CreateBookRequest!): CreateBookResponse
 }
 
 interface MutationResponse {
@@ -24,7 +24,7 @@ interface MutationResponse {
     message: String!
 }
 
-input CreateBook {
+input CreateBookRequest {
     id: ID! @NotBlank
     name: String! @NotBlank @Pattern(regexp: ".{0,100}")
 }
