@@ -1,4 +1,4 @@
-package com.harishkannarao.springboot.graphqlwebmvc.controller;
+package com.harishkannarao.springboot.graphqlwebmvc.controller.rest;
 
 import com.harishkannarao.springboot.graphqlwebmvc.exception.ArtificialException;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GreetingResponseDto;

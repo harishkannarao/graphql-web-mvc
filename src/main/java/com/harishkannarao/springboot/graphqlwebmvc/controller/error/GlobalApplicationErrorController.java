@@ -1,4 +1,4 @@
-package com.harishkannarao.springboot.graphqlwebmvc.controller;
+package com.harishkannarao.springboot.graphqlwebmvc.controller.error;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;

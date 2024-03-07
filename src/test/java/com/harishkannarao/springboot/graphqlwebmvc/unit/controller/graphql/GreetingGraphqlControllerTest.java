@@ -1,7 +1,6 @@
-package com.harishkannarao.springboot.graphqlwebmvc.unit.controller;
+package com.harishkannarao.springboot.graphqlwebmvc.unit.controller.graphql;
 
-import com.harishkannarao.springboot.graphqlwebmvc.controller.GreetingGraphqlController;
-import org.junit.jupiter.api.Assertions;
+import com.harishkannarao.springboot.graphqlwebmvc.controller.graphql.GreetingGraphqlController;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

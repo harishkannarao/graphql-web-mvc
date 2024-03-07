@@ -1,6 +1,6 @@
-package com.harishkannarao.springboot.graphqlwebmvc.unit.controller;
+package com.harishkannarao.springboot.graphqlwebmvc.unit.controller.rest;
 
-import com.harishkannarao.springboot.graphqlwebmvc.controller.GreetingRestController;
+import com.harishkannarao.springboot.graphqlwebmvc.controller.rest.GreetingRestController;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GreetingResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
