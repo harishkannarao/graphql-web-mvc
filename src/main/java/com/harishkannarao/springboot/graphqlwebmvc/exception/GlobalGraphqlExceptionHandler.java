@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 @ControllerAdvice
 public class GlobalGraphqlExceptionHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(GlobalGraphqlExceptionHandler.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@GraphQlExceptionHandler
 	public GraphQLError handle(ArtificialException ex, DataFetchingEnvironment dataFetchingEnvironment) {

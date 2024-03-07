@@ -24,7 +24,7 @@ public class GlobalApplicationErrorController extends BasicErrorController {
     private static final String ERROR_KEY = "error";
     private static final String MESSAGE_KEY = "message";
 
-    private final Logger logger = LoggerFactory.getLogger(GlobalApplicationErrorController.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ErrorAttributes errorAttributes;
 
     @Autowired

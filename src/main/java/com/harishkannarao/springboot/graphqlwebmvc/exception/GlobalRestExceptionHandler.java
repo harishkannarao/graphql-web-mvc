@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice(annotations = RestController.class)
 public class GlobalRestExceptionHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(GlobalRestExceptionHandler.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@ExceptionHandler
 	public ErrorResponse handleArtificialException(ArtificialException ex, HttpServletRequest request) {

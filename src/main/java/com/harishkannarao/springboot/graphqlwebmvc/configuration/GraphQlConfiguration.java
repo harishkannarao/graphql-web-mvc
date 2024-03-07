@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class GraphQlConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(GraphQlConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Bean
     public GraphQlSourceBuilderCustomizer sourceBuilderCustomizer() {

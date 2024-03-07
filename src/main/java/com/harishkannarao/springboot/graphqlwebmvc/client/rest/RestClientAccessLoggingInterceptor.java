@@ -10,7 +10,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import java.io.IOException;
 
 public class RestClientAccessLoggingInterceptor implements ClientHttpRequestInterceptor {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RestClientAccessLoggingInterceptor.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
 	public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] body, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
@@ -21,18 +21,18 @@ public class RestClientAccessLoggingInterceptor implements ClientHttpRequestInte
 		String responseBody = "";
 		ClientHttpResponse response;
 		try {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Request Body: " + new String(body));
+			if (logger.isDebugEnabled()) {
+				logger.debug("Request Body: " + new String(body));
 			}
 			response = clientHttpRequestExecution.execute(httpRequest, body);
 			statusCode = response.getStatusCode().value();
-			if (LOGGER.isDebugEnabled()) {
+			if (logger.isDebugEnabled()) {
 				responseBody = new String(response.getBody().readAllBytes());
 			}
 		} finally {
 			long timeTaken = System.currentTimeMillis() - startTime;
-			LOGGER.info("REST_CLIENT_ACCESS_LOG {} {} {} {}", timeTaken, statusCode, method, url);
-			LOGGER.debug("Response Body: " + responseBody);
+			logger.info("REST_CLIENT_ACCESS_LOG {} {} {} {}", timeTaken, statusCode, method, url);
+			logger.debug("Response Body: " + responseBody);
 		}
 		return response;
 	}

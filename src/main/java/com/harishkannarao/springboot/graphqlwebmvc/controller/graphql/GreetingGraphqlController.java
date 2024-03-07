@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class GreetingGraphqlController {
 
-	private final Logger logger = LoggerFactory.getLogger(GreetingGraphqlController.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@QueryMapping(name = "greeting")
 	public String handleGreeting(
