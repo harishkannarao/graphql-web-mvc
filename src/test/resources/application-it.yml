@@ -9,6 +9,12 @@ tee:
 
 logging:
   level:
+    com:
+      harishkannarao:
+        springboot:
+          graphqlwebmvc:
+            client:
+              rest: "DEBUG"
     reactor:
       netty:
         http:

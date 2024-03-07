@@ -18,13 +18,21 @@ public class RestClientAccessLoggingInterceptor implements ClientHttpRequestInte
 		int statusCode = 0;
 		String method = httpRequest.getMethod().name();
 		String url = httpRequest.getURI().toString();
+		String responseBody = "";
 		ClientHttpResponse response;
 		try {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Request Body: " + new String(body));
+			}
 			response = clientHttpRequestExecution.execute(httpRequest, body);
 			statusCode = response.getStatusCode().value();
+			if (LOGGER.isDebugEnabled()) {
+				responseBody = new String(response.getBody().readAllBytes());
+			}
 		} finally {
 			long timeTaken = System.currentTimeMillis() - startTime;
 			LOGGER.info("REST_CLIENT_ACCESS_LOG {} {} {} {}", timeTaken, statusCode, method, url);
+			LOGGER.debug("Response Body: " + responseBody);
 		}
 		return response;
 	}
