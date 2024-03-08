@@ -13,9 +13,9 @@ This project demonstrates the Graphql client and server using Spring Boot Web Mv
 
     ./mvnw clean install
 
-### Run application
+### Run application with PostgresQL DB
 
-    ./mvnw spring-boot:run
+    mvn test-compile exec:java@run-local
 
 ### Urls
 
