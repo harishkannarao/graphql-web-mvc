@@ -1,8 +1,8 @@
 package com.harishkannarao.springboot.graphqlwebmvc.model;
 
-public record CreateBookResponseDto(
+public record CreateBookRes(
 	Boolean success,
 	String message,
-	BookResponseDto book
+	Book book
 ) implements MutationResponse {
 }

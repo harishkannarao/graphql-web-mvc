@@ -1,6 +1,6 @@
 package com.harishkannarao.springboot.graphqlwebmvc.model;
 
-public record CreateBookRequestDto(
+public record CreateBookReq(
 	String id,
 	String name
 ) {

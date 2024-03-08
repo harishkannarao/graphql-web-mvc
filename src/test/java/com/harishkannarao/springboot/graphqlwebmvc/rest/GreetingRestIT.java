@@ -1,7 +1,7 @@
 package com.harishkannarao.springboot.graphqlwebmvc.rest;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GreetingResponseDto;
+import com.harishkannarao.springboot.graphqlwebmvc.model.GreetingRes;
 import com.harishkannarao.springboot.graphqlwebmvc.util.Constants;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -30,11 +29,11 @@ public class GreetingRestIT extends AbstractBaseIT {
 	public void get_greeting_using_rest_endpoint() {
 		final String inputName = "hello";
 
-		final ResponseEntity<GreetingResponseDto> result = testRestTemplate
-			.getForEntity("/rest/greeting?name=" + inputName, GreetingResponseDto.class);
+		final ResponseEntity<GreetingRes> result = testRestTemplate
+			.getForEntity("/rest/greeting?name=" + inputName, GreetingRes.class);
 
 		assertThat(result.getStatusCode().value()).isEqualTo(200);
-		GreetingResponseDto entity = Objects.requireNonNull(result.getBody());
+		GreetingRes entity = Objects.requireNonNull(result.getBody());
 		assertThat(entity.message()).isEqualTo("Hello %s!".formatted(inputName));
 	}
 

@@ -1,8 +1,8 @@
 package com.harishkannarao.springboot.graphqlwebmvc.controller.graphql;
 
-import com.harishkannarao.springboot.graphqlwebmvc.model.BookResponseDto;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRequestDto;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponseDto;
+import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookReq;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -14,15 +14,15 @@ public class BookGraphqlController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@MutationMapping(name = "createBook")
-	public CreateBookResponseDto createBook(
-		@Argument(name = "book") CreateBookRequestDto createBookRequestDto) {
-		logger.info("createBook request received as {}", createBookRequestDto);
-		return new CreateBookResponseDto(
+	public CreateBookRes createBook(
+		@Argument(name = "book") CreateBookReq createBookReq) {
+		logger.info("createBook request received as {}", createBookReq);
+		return new CreateBookRes(
 			true,
 			"successfully created",
-			new BookResponseDto(
-				createBookRequestDto.id(),
-				createBookRequestDto.name()
+			new Book(
+				createBookReq.id(),
+				createBookReq.name()
 			)
 		);
 	}

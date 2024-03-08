@@ -1,9 +1,8 @@
 package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRequestDto;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponseDto;
-import org.assertj.core.api.Assertions;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookReq;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
@@ -24,7 +23,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_returns_book() {
-		CreateBookRequestDto createBookRequest = new CreateBookRequestDto(
+		CreateBookReq createBookRequest = new CreateBookReq(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID()
 		);
@@ -35,10 +34,10 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
 
-		CreateBookResponseDto createBookResponse = response
+		CreateBookRes createBookResponse = response
 			.path("createBook")
 			.hasValue()
-			.entity(CreateBookResponseDto.class)
+			.entity(CreateBookRes.class)
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();
@@ -49,7 +48,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_does_not_return_created_book() {
-		CreateBookRequestDto createBookRequest = new CreateBookRequestDto(
+		CreateBookReq createBookRequest = new CreateBookReq(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID()
 		);
@@ -61,10 +60,10 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
 
-		CreateBookResponseDto createBookResponse = response
+		CreateBookRes createBookResponse = response
 			.path("createBook")
 			.hasValue()
-			.entity(CreateBookResponseDto.class)
+			.entity(CreateBookRes.class)
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();
