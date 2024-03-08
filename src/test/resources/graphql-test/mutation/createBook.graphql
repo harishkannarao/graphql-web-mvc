@@ -1,0 +1,13 @@
+mutation CreateBook(
+    $book: CreateBookRequest!,
+    $returnCreatedBook: Boolean! = true
+) {
+    createBook(book: $book) {
+        success
+        message
+        book @include(if: $returnCreatedBook) {
+            id,
+            name
+        }
+    }
+}
