@@ -1,5 +1,6 @@
 package com.harishkannarao.springboot.graphqlwebmvc;
 
+import com.harishkannarao.springboot.graphqlwebmvc.runner.PostgresTestRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -16,5 +17,10 @@ public abstract class AbstractBaseIT {
     static void registerTestProperties(DynamicPropertyRegistry registry) {
         final int RANDOM_SERVER_PORT = TestSocketUtils.findAvailableTcpPort();
         registry.add("server.port", () -> String.valueOf(RANDOM_SERVER_PORT));
+
+				if(!PostgresTestRunner.isRunning()) {
+					PostgresTestRunner.start();
+				}
     }
+
 }
