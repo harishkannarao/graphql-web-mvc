@@ -19,6 +19,17 @@ spring:
       allowed-methods: "GET,POST"
       max-age: "1800s"
 
+app:
+  datasource:
+    hikari:
+      jdbc-url: "${APP_DATASOURCE_URL:jdbc:postgresql://localhost:5432/test-user}"
+      username: "${APP_DATASOURCE_USERNAME:test-user}"
+      password: "${APP_DATASOURCE_PASSWORD:test-password}"
+      maximum-pool-size: "${APP_DATASOURCE_MAX_POOL_SIZE:30}"
+      driver:
+        class:
+          name: "${APP_DATASOURCE_DRIVER_NAME:org.postgresql.Driver}"
+
 tee:
   filter:
     enabled: "${TEE_FILTER_ENABLED:false}"

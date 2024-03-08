@@ -3,6 +3,9 @@ package com.harishkannarao.springboot.graphqlwebmvc.runner;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.List;
+
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PostgresTestRunner {
 
     private static final int PORT = 5432;
@@ -14,7 +17,20 @@ public class PostgresTestRunner {
             .withEnv("POSTGRES_USER", USERNAME)
             .withEnv("POSTGRES_PASSWORD", PASSWORD);
 
-    public static void start() {
+		public static void startWithFixedPorts() {
+			start(true);
+		}
+
+		public static void startWithRandomPorts() {
+			start(false);
+		}
+
+    private static void start(boolean useFixedPorts) {
+			if (useFixedPorts) {
+				CONTAINER.setPortBindings(List.of(PORT + ":" + PORT));
+			} else {
+				CONTAINER.setPortBindings(List.of());
+			}
         CONTAINER.start();
     }
 

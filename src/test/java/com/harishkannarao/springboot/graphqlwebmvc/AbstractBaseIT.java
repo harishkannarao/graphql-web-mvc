@@ -13,14 +13,17 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles("it")
 public abstract class AbstractBaseIT {
 
-    @DynamicPropertySource
-    static void registerTestProperties(DynamicPropertyRegistry registry) {
-        final int RANDOM_SERVER_PORT = TestSocketUtils.findAvailableTcpPort();
-        registry.add("server.port", () -> String.valueOf(RANDOM_SERVER_PORT));
+	@DynamicPropertySource
+	static void registerTestProperties(DynamicPropertyRegistry registry) {
+		final int RANDOM_SERVER_PORT = TestSocketUtils.findAvailableTcpPort();
+		registry.add("server.port", () -> String.valueOf(RANDOM_SERVER_PORT));
 
-				if(!PostgresTestRunner.isRunning()) {
-					PostgresTestRunner.start();
-				}
-    }
+		if (!PostgresTestRunner.isRunning()) {
+			PostgresTestRunner.startWithRandomPorts();
+			registry.add("app.datasource.hikari.jdbc-url", PostgresTestRunner::getJdbcUrl);
+			registry.add("app.datasource.hikari.username", PostgresTestRunner::getUsername);
+			registry.add("app.datasource.hikari.password", PostgresTestRunner::getPassword);
+		}
+	}
 
 }
