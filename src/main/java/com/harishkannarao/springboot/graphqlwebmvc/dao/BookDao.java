@@ -14,6 +14,8 @@ public class BookDao {
 	private static final String SELECT_BY_ID = """
 		SELECT data FROM books WHERE data->>'id'::text = :id
 		""";
+	private static final String PARAM_DATA = "data";
+	private static final String PARAM_ID = "id";
 
 	private final JdbcClient jdbcClient;
 	private final JsonUtil jsonUtil;
@@ -25,15 +27,16 @@ public class BookDao {
 
 	public void create(Book book) {
 		jdbcClient.sql(INSERT_SQL)
-			.param("data", jsonUtil.toJson(book))
+			.param(PARAM_DATA, jsonUtil.toJson(book))
 			.update();
 	}
 
 	public Book get(String id) {
-		return jdbcClient
+		final String data = jdbcClient
 			.sql(SELECT_BY_ID)
-			.param("id", id)
-			.query((rs, rowNum) -> jsonUtil.fromJson(rs.getString("data"), Book.class))
+			.param(PARAM_ID, id)
+			.query(String.class)
 			.single();
+		return jsonUtil.fromJson(data, Book.class);
 	}
 }
