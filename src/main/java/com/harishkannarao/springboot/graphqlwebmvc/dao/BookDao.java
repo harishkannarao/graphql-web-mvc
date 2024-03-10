@@ -23,7 +23,7 @@ public class BookDao {
 		this.jsonUtil = jsonUtil;
 	}
 
-	public void upsert(Book book) {
+	public void create(Book book) {
 		jdbcClient.sql(INSERT_SQL)
 			.param("data", jsonUtil.toJson(book))
 			.update();
