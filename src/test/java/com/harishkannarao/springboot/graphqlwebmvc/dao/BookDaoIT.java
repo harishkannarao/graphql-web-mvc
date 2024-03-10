@@ -2,8 +2,7 @@ package com.harishkannarao.springboot.graphqlwebmvc.dao;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
-import com.harishkannarao.springboot.graphqlwebmvc.model.BookDbEntity;
-import org.junit.jupiter.api.Assertions;
+import com.harishkannarao.springboot.graphqlwebmvc.model.DbEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -30,8 +29,8 @@ public class BookDaoIT extends AbstractBaseIT {
 		var referenceStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		bookDao.create(book);
 		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		BookDbEntity result = bookDao.get(book.id());
-		assertThat(result.book()).isEqualTo(book);
+		DbEntity<Book> result = bookDao.get(book.id());
+		assertThat(result.data()).isEqualTo(book);
 		assertThat(result.createdTime().truncatedTo(ChronoUnit.SECONDS))
 			.isAfterOrEqualTo(referenceStartTime)
 			.isBeforeOrEqualTo(referenceEndTime);

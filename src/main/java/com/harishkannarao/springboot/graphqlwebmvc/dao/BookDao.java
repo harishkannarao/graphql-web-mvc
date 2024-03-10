@@ -1,8 +1,8 @@
 package com.harishkannarao.springboot.graphqlwebmvc.dao;
 
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
-import com.harishkannarao.springboot.graphqlwebmvc.model.BookDbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.DbEntity;
+import com.harishkannarao.springboot.graphqlwebmvc.model.RawDbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
@@ -33,16 +33,16 @@ public class BookDao {
 			.update();
 	}
 
-	public BookDbEntity get(String id) {
-		final DbEntity dbEntity = jdbcClient
+	public DbEntity<Book> get(String id) {
+		final RawDbEntity rawDbEntity = jdbcClient
 			.sql(SELECT_BY_ID)
 			.param(PARAM_ID, id)
-			.query(DbEntity.class)
+			.query(RawDbEntity.class)
 			.single();
-		return new BookDbEntity(
-			jsonUtil.fromJson(dbEntity.data(), Book.class),
-			dbEntity.createdTime(),
-			dbEntity.updatedTime()
+		return new DbEntity<>(
+			jsonUtil.fromJson(rawDbEntity.data(), Book.class),
+			rawDbEntity.createdTime(),
+			rawDbEntity.updatedTime()
 		);
 	}
 }
