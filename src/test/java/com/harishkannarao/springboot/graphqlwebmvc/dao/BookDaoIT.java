@@ -9,6 +9,7 @@ import org.springframework.dao.DuplicateKeyException;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,5 +46,23 @@ public class BookDaoIT extends AbstractBaseIT {
 		bookDao.create(book);
 
 		assertThrows(DuplicateKeyException.class, () -> bookDao.create(book));
+	}
+
+	@Test
+	public void list_by_ids_returns_entities() {
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
+
+		bookDao.create(book1);
+		bookDao.create(book2);
+		bookDao.create(book3);
+
+		List<DbEntity<Book>> result = bookDao.list(List.of(book1.id(), book3.id()));
+
+		assertThat(result)
+			.anySatisfy(entity -> assertThat(entity.data()).isEqualTo(book1))
+			.anySatisfy(entity -> assertThat(entity.data()).isEqualTo(book3))
+			.hasSize(2);
 	}
 }
