@@ -1,6 +1,8 @@
 package com.harishkannarao.springboot.graphqlwebmvc.dao;
 
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
+import com.harishkannarao.springboot.graphqlwebmvc.model.BookDbEntity;
+import com.harishkannarao.springboot.graphqlwebmvc.model.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
@@ -12,7 +14,7 @@ public class BookDao {
 		VALUES (:data::jsonb, timezone('UTC', now()), timezone('UTC', now()))
 		""";
 	private static final String SELECT_BY_ID = """
-		SELECT data FROM books WHERE data->>'id'::text = :id
+		SELECT data, created_time, updated_time FROM books WHERE data->>'id'::text = :id
 		""";
 	private static final String PARAM_DATA = "data";
 	private static final String PARAM_ID = "id";
@@ -31,12 +33,16 @@ public class BookDao {
 			.update();
 	}
 
-	public Book get(String id) {
-		final String data = jdbcClient
+	public BookDbEntity get(String id) {
+		final DbEntity dbEntity = jdbcClient
 			.sql(SELECT_BY_ID)
 			.param(PARAM_ID, id)
-			.query(String.class)
+			.query(DbEntity.class)
 			.single();
-		return jsonUtil.fromJson(data, Book.class);
+		return new BookDbEntity(
+			jsonUtil.fromJson(dbEntity.data(), Book.class),
+			dbEntity.createdTime(),
+			dbEntity.updatedTime()
+		);
 	}
 }
