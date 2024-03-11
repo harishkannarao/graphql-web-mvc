@@ -30,7 +30,9 @@ public class BookDaoIT extends AbstractBaseIT {
 		var referenceStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		bookDao.create(book);
 		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+
 		DbEntity<Book> result = bookDao.get(book.id());
+
 		assertThat(result.data()).isEqualTo(book);
 		assertThat(result.createdTime().truncatedTo(ChronoUnit.SECONDS))
 			.isAfterOrEqualTo(referenceStartTime)
@@ -43,9 +45,32 @@ public class BookDaoIT extends AbstractBaseIT {
 	@Test
 	public void create_throws_exception_for_duplicate_entry() {
 		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
+
 		bookDao.create(book);
 
 		assertThrows(DuplicateKeyException.class, () -> bookDao.create(book));
+	}
+
+	@Test
+	public void update_and_get_by_id() {
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
+
+		bookDao.create(book);
+		var dbEntityBeforeUpdate = bookDao.get(book.id());
+
+		var referenceStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID());
+
+		bookDao.update(bookUpdate);
+
+		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		DbEntity<Book> result = bookDao.get(book.id());
+		assertThat(result.data()).isEqualTo(bookUpdate);
+		assertThat(result.createdTime())
+			.isEqualTo(dbEntityBeforeUpdate.createdTime());
+		assertThat(result.updatedTime().truncatedTo(ChronoUnit.SECONDS))
+			.isAfterOrEqualTo(referenceStartTime)
+			.isBeforeOrEqualTo(referenceEndTime);
 	}
 
 	@Test

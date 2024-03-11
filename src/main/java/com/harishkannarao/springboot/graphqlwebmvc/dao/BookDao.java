@@ -16,6 +16,10 @@ public class BookDao {
 		INSERT INTO books(data, created_time, updated_time) \
 		VALUES (:data::jsonb, timezone('UTC', now()), timezone('UTC', now()))
 		""";
+	private static final String UPDATE_SQL = """
+		UPDATE books SET data = :data::jsonb, updated_time = timezone('UTC', now()) \
+		WHERE data->>'id'::text = :id
+		""";
 	private static final String SELECT_BY_ID = """
 		SELECT data, created_time, updated_time FROM books WHERE data->>'id'::text = :id
 		""";
@@ -37,6 +41,13 @@ public class BookDao {
 	public void create(Book book) {
 		jdbcClient.sql(INSERT_SQL)
 			.param(PARAM_DATA, jsonUtil.toJson(book))
+			.update();
+	}
+
+	public void update(Book book) {
+		jdbcClient.sql(UPDATE_SQL)
+			.param(PARAM_DATA, jsonUtil.toJson(book))
+			.param(PARAM_ID, book.id())
 			.update();
 	}
 
