@@ -70,4 +70,42 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		assertThat(createBookResponse.message()).isEqualTo("success");
 		assertThat(createBookResponse.book()).isNull();
 	}
+
+	@Test
+	public void createBook_fails_with_duplicate_key_error() {
+		CreateBookReq createBookRequest = new CreateBookReq(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID()
+		);
+		GraphQlTester.Response successResponse = httpGraphQlTester
+			.documentName("mutation/createBook")
+			.variable("book", createBookRequest)
+			.execute();
+
+		successResponse.errors().satisfy(errors -> assertThat(errors).isEmpty());
+
+		CreateBookRes createBookResponse = successResponse
+			.path("createBook")
+			.hasValue()
+			.entity(CreateBookRes.class)
+			.get();
+
+		assertThat(createBookResponse.success()).isTrue();
+		assertThat(createBookResponse.message()).isEqualTo("success");
+
+		GraphQlTester.Response errorResponse = httpGraphQlTester
+			.documentName("mutation/createBook")
+			.variable("book", createBookRequest)
+			.execute();
+
+		errorResponse
+			.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Duplicate key / entity already exists");
+					assertThat(error.getPath()).isEqualTo("createBook");
+				}))
+			.path("createBook")
+			.valueIsNull();
+	}
 }
