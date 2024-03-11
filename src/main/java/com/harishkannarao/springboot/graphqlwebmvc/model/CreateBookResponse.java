@@ -1,6 +1,6 @@
 package com.harishkannarao.springboot.graphqlwebmvc.model;
 
-public record CreateBookRes(
+public record CreateBookResponse(
 	Boolean success,
 	String message,
 	Book book

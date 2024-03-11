@@ -2,7 +2,7 @@ package com.harishkannarao.springboot.graphqlwebmvc.dao;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
-import com.harishkannarao.springboot.graphqlwebmvc.model.DbEntity;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;

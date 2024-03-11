@@ -1,8 +1,8 @@
 package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookReq;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRes;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRequest;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
@@ -23,7 +23,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_returns_book() {
-		CreateBookReq createBookRequest = new CreateBookReq(
+		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID()
 		);
@@ -34,10 +34,10 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
 
-		CreateBookRes createBookResponse = response
+		CreateBookResponse createBookResponse = response
 			.path("createBook")
 			.hasValue()
-			.entity(CreateBookRes.class)
+			.entity(CreateBookResponse.class)
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();
@@ -48,7 +48,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_does_not_return_created_book() {
-		CreateBookReq createBookRequest = new CreateBookReq(
+		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID()
 		);
@@ -60,10 +60,10 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
 
-		CreateBookRes createBookResponse = response
+		CreateBookResponse createBookResponse = response
 			.path("createBook")
 			.hasValue()
-			.entity(CreateBookRes.class)
+			.entity(CreateBookResponse.class)
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();
@@ -73,7 +73,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_fails_with_duplicate_key_error() {
-		CreateBookReq createBookRequest = new CreateBookReq(
+		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID()
 		);
@@ -84,10 +84,10 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		successResponse.errors().satisfy(errors -> assertThat(errors).isEmpty());
 
-		CreateBookRes createBookResponse = successResponse
+		CreateBookResponse createBookResponse = successResponse
 			.path("createBook")
 			.hasValue()
-			.entity(CreateBookRes.class)
+			.entity(CreateBookResponse.class)
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();

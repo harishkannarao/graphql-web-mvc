@@ -1,7 +1,7 @@
 package com.harishkannarao.springboot.graphqlwebmvc.unit.controller.rest;
 
 import com.harishkannarao.springboot.graphqlwebmvc.controller.rest.GreetingRestController;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GreetingRes;
+import com.harishkannarao.springboot.graphqlwebmvc.model.GreetingResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -16,10 +16,10 @@ public class GreetingRestControllerTest {
 	@Test
 	public void handleGreeting_returns_greeting_with_given_name() {
 		String inputName = "test";
-		ResponseEntity<GreetingRes> result = underTest.handleGreeting(inputName);
+		ResponseEntity<GreetingResponse> result = underTest.handleGreeting(inputName);
 		assertThat(result.getStatusCode().value()).isEqualTo(200);
 
-		GreetingRes entity = Objects.requireNonNull(result.getBody());
+		GreetingResponse entity = Objects.requireNonNull(result.getBody());
 		assertThat(entity.message()).isEqualTo("Hello %s!".formatted(inputName));
 	}
 }

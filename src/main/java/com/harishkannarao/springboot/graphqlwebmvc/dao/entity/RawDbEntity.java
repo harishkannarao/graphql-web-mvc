@@ -1,4 +1,4 @@
-package com.harishkannarao.springboot.graphqlwebmvc.model;
+package com.harishkannarao.springboot.graphqlwebmvc.dao.entity;
 
 import java.time.Instant;
 

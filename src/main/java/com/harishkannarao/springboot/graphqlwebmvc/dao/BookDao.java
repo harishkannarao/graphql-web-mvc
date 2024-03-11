@@ -1,8 +1,8 @@
 package com.harishkannarao.springboot.graphqlwebmvc.dao;
 
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
-import com.harishkannarao.springboot.graphqlwebmvc.model.DbEntity;
-import com.harishkannarao.springboot.graphqlwebmvc.model.RawDbEntity;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.RawDbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.simple.JdbcClient;
