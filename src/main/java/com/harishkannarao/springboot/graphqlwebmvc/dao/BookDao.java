@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class BookDao {
@@ -19,6 +20,9 @@ public class BookDao {
 	private static final String UPDATE_SQL = """
 		UPDATE books SET data = :data::jsonb, updated_time = timezone('UTC', now()) \
 		WHERE data->>'id'::text = :id
+		""";
+	private static final String DELETE_SQL = """
+		DELETE FROM books WHERE data->>'id'::text = :id
 		""";
 	private static final String SELECT_BY_ID = """
 		SELECT data, created_time, updated_time FROM books WHERE data->>'id'::text = :id
@@ -51,13 +55,14 @@ public class BookDao {
 			.update();
 	}
 
-	public DbEntity<Book> get(String id) {
-		final RawDbEntity rawDbEntity = jdbcClient
+	public Optional<DbEntity<Book>> get(String id) {
+		final Optional<RawDbEntity> rawDbEntity = jdbcClient
 			.sql(SELECT_BY_ID)
 			.param(PARAM_ID, id)
 			.query(RawDbEntity.class)
-			.single();
-		return createDbEntity(rawDbEntity);
+			.optional();
+
+		return rawDbEntity.map(this::createDbEntity);
 	}
 
 	public List<DbEntity<Book>> list(List<String> ids) {
@@ -69,6 +74,12 @@ public class BookDao {
 		return rawDbEntities.stream()
 			.map(this::createDbEntity)
 			.toList();
+	}
+
+	public void delete(String id) {
+		jdbcClient.sql(DELETE_SQL)
+			.param(PARAM_ID, id)
+			.update();
 	}
 
 	@NotNull

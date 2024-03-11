@@ -10,6 +10,7 @@ import org.springframework.dao.DuplicateKeyException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,17 +30,21 @@ public class BookDaoIT extends AbstractBaseIT {
 		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
 		var referenceStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		bookDao.create(book);
-		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+			.plusSeconds(1);
 
-		DbEntity<Book> result = bookDao.get(book.id());
+		Optional<DbEntity<Book>> result = bookDao.get(book.id());
 
-		assertThat(result.data()).isEqualTo(book);
-		assertThat(result.createdTime().truncatedTo(ChronoUnit.SECONDS))
-			.isAfterOrEqualTo(referenceStartTime)
-			.isBeforeOrEqualTo(referenceEndTime);
-		assertThat(result.updatedTime().truncatedTo(ChronoUnit.SECONDS))
-			.isAfterOrEqualTo(referenceStartTime)
-			.isBeforeOrEqualTo(referenceEndTime);
+		assertThat(result)
+			.hasValueSatisfying(entity -> {
+				assertThat(entity.data()).isEqualTo(book);
+				assertThat(entity.createdTime().truncatedTo(ChronoUnit.SECONDS))
+					.isAfterOrEqualTo(referenceStartTime)
+					.isBeforeOrEqualTo(referenceEndTime);
+				assertThat(entity.updatedTime().truncatedTo(ChronoUnit.SECONDS))
+					.isAfterOrEqualTo(referenceStartTime)
+					.isBeforeOrEqualTo(referenceEndTime);
+			});
 	}
 
 	@Test
@@ -56,21 +61,39 @@ public class BookDaoIT extends AbstractBaseIT {
 		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
 
 		bookDao.create(book);
-		var dbEntityBeforeUpdate = bookDao.get(book.id());
+		var dbEntityBeforeUpdate = bookDao.get(book.id()).orElseThrow();
 
 		var referenceStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID());
 
 		bookDao.update(bookUpdate);
 
-		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		DbEntity<Book> result = bookDao.get(book.id());
-		assertThat(result.data()).isEqualTo(bookUpdate);
-		assertThat(result.createdTime())
-			.isEqualTo(dbEntityBeforeUpdate.createdTime());
-		assertThat(result.updatedTime().truncatedTo(ChronoUnit.SECONDS))
-			.isAfterOrEqualTo(referenceStartTime)
-			.isBeforeOrEqualTo(referenceEndTime);
+		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+			.plusSeconds(1);
+		Optional<DbEntity<Book>> result = bookDao.get(book.id());
+
+		assertThat(result)
+			.hasValueSatisfying(entity -> {
+				assertThat(entity.data()).isEqualTo(bookUpdate);
+				assertThat(entity.createdTime())
+					.isEqualTo(dbEntityBeforeUpdate.createdTime());
+				assertThat(entity.updatedTime().truncatedTo(ChronoUnit.SECONDS))
+					.isAfterOrEqualTo(referenceStartTime)
+					.isBeforeOrEqualTo(referenceEndTime);
+			});
+	}
+
+	@Test
+	public void delete_by_id() {
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
+
+		bookDao.create(book);
+
+		assertThat(bookDao.get(book.id())).isNotEmpty();
+
+		bookDao.delete(book.id());
+
+		assertThat(bookDao.get(book.id())).isEmpty();
 	}
 
 	@Test
