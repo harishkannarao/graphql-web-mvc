@@ -57,6 +57,25 @@ public class BookDaoIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void upsert_creates_and_updates_book() {
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
+
+		bookDao.upsert(book);
+
+		DbEntity<Book> createdBook = bookDao.get(book.id()).orElseThrow();
+		assertThat(createdBook.data()).isEqualTo(book);
+
+		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID());
+
+		bookDao.upsert(bookUpdate);
+
+		DbEntity<Book> updatedBook = bookDao.get(book.id()).orElseThrow();
+		assertThat(updatedBook.data()).isEqualTo(bookUpdate);
+		assertThat(updatedBook.createdTime()).isEqualTo(createdBook.createdTime());
+		assertThat(updatedBook.updatedTime()).isAfterOrEqualTo(createdBook.createdTime());
+	}
+
+	@Test
 	public void update_and_get_by_id() {
 		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
 
