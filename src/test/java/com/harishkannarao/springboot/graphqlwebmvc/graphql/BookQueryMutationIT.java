@@ -44,6 +44,10 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		assertThat(createBookResponse.message()).isEqualTo("success");
 		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
 		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
+
+		response
+			.path("createBook.book.authors")
+			.pathDoesNotExist();
 	}
 
 	@Test
