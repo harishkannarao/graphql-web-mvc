@@ -47,7 +47,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
-	public void createBook_successfully_creates_and_does_not_return_created_book() {
+	public void createBook_successfully_creates_and_does_not_return_created_book_and_message() {
 		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID()
@@ -55,6 +55,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("book", createBookRequest)
+			.variable("skipMessage", Boolean.TRUE)
 			.variable("returnCreatedBook", Boolean.FALSE)
 			.execute();
 
@@ -67,7 +68,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();
-		assertThat(createBookResponse.message()).isEqualTo("success");
+		assertThat(createBookResponse.message()).isNull();
 		assertThat(createBookResponse.book()).isNull();
 	}
 

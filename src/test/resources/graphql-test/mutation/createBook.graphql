@@ -1,10 +1,11 @@
 mutation CreateBook(
     $book: CreateBookRequest!,
+    $skipMessage: Boolean! = false
     $returnCreatedBook: Boolean! = true
 ) {
     createBook(book: $book) {
         success
-        message
+        message @skip(if: $skipMessage)
         book @include(if: $returnCreatedBook) {
             id,
             name
