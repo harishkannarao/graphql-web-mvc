@@ -47,6 +47,36 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void createBook_successfully_creates_and_returns_book_with_authors() {
+		CreateBookRequest createBookRequest = new CreateBookRequest(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID()
+		);
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createBook")
+			.variable("book", createBookRequest)
+			.variable("includeAuthors", Boolean.TRUE)
+			.execute();
+
+		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
+
+		CreateBookResponse createBookResponse = response
+			.path("createBook")
+			.hasValue()
+			.entity(CreateBookResponse.class)
+			.get();
+
+		assertThat(createBookResponse.success()).isTrue();
+		assertThat(createBookResponse.message()).isEqualTo("success");
+		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
+		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
+
+		response
+			.path("createBook.book.authors")
+			.hasValue();
+	}
+
+	@Test
 	public void createBook_successfully_creates_and_does_not_return_created_book_and_message() {
 		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),

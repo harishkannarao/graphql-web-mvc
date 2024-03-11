@@ -1,14 +1,19 @@
 mutation CreateBook(
     $book: CreateBookRequest!,
-    $skipMessage: Boolean! = false
-    $returnCreatedBook: Boolean! = true
+    $skipMessage: Boolean! = false,
+    $returnCreatedBook: Boolean! = true,
+    $includeAuthors: Boolean! = false
 ) {
     createBook(book: $book) {
         success
         message @skip(if: $skipMessage)
         book @include(if: $returnCreatedBook) {
             id,
-            name
+            name,
+            authors @include(if: $includeAuthors) {
+                id,
+                name
+            }
         }
     }
 }
