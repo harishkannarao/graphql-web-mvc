@@ -41,7 +41,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();
-		assertThat(createBookResponse.message()).isEqualTo("successfully created");
+		assertThat(createBookResponse.message()).isEqualTo("success");
 		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
 		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
 	}
@@ -67,7 +67,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 			.get();
 
 		assertThat(createBookResponse.success()).isTrue();
-		assertThat(createBookResponse.message()).isEqualTo("successfully created");
+		assertThat(createBookResponse.message()).isEqualTo("success");
 		assertThat(createBookResponse.book()).isNull();
 	}
 }
