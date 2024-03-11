@@ -5,6 +5,9 @@ import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.RawDbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +37,8 @@ public class BookDao {
 	private static final String PARAM_ID = "id";
 	private static final String PARAM_IDS = "ids";
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	private final JdbcClient jdbcClient;
 	private final JsonUtil jsonUtil;
 
@@ -53,6 +58,16 @@ public class BookDao {
 			.param(PARAM_DATA, jsonUtil.toJson(book))
 			.param(PARAM_ID, book.id())
 			.update();
+	}
+
+	public void upsert(Book book) {
+		try {
+			create(book);
+		} catch (DuplicateKeyException ex) {
+			logger.debug(ex.getMessage(), ex);
+			logger.info("Book with id %s already exists, so upsert will be done".formatted(book.id()));
+			update(book);
+		}
 	}
 
 	public Optional<DbEntity<Book>> get(String id) {
