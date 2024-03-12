@@ -52,4 +52,91 @@ public class BookAuthorDaoIT extends AbstractBaseIT {
 		assertThat(result)
 			.isEmpty();
 	}
+
+	@Test
+	public void list_by_author_ids() {
+		var entity1 = new BookAuthor(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+		var entity2 = new BookAuthor(UUID.randomUUID().toString(), entity1.authorId());
+		var entity3 = new BookAuthor(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+		var entity4 = new BookAuthor(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+
+		bookAuthorDao.create(entity1);
+		bookAuthorDao.create(entity2);
+		bookAuthorDao.create(entity3);
+		bookAuthorDao.create(entity4);
+
+		List<BookAuthor> result = bookAuthorDao
+			.listByAuthorIds(List.of(entity1.authorId(), entity3.authorId()))
+			.stream()
+			.map(DbEntity::data)
+			.toList();
+
+		assertThat(result)
+			.contains(entity1, entity2, entity3)
+			.hasSize(3);
+	}
+
+	@Test
+	public void list_by_author_ids_returns_empty_for_unknown_id() {
+		List<BookAuthor> result = bookAuthorDao.listByAuthorIds(List.of(UUID.randomUUID().toString()))
+			.stream()
+			.map(DbEntity::data)
+			.toList();
+
+		assertThat(result)
+			.isEmpty();
+	}
+
+	@Test
+	public void create_is_idempotent() {
+		var entity = new BookAuthor(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+
+		bookAuthorDao.create(entity);
+
+		List<BookAuthor> result = bookAuthorDao.listByBookIds(List.of(entity.bookId()))
+			.stream()
+			.map(DbEntity::data)
+			.toList();
+
+		assertThat(result)
+			.contains(entity)
+			.hasSize(1);
+
+		bookAuthorDao.create(entity);
+
+		List<BookAuthor> secondResult = bookAuthorDao.listByBookIds(List.of(entity.bookId()))
+			.stream()
+			.map(DbEntity::data)
+			.toList();
+
+		assertThat(secondResult)
+			.contains(entity)
+			.hasSize(1);
+	}
+
+	@Test
+	public void deletes_the_enty() {
+		var entity = new BookAuthor(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+
+		bookAuthorDao.create(entity);
+
+		List<BookAuthor> result = bookAuthorDao.listByBookIds(List.of(entity.bookId()))
+			.stream()
+			.map(DbEntity::data)
+			.toList();
+
+		assertThat(result)
+			.contains(entity)
+			.hasSize(1);
+
+		bookAuthorDao.delete(entity.bookId(), entity.authorId());
+
+		List<BookAuthor> secondResult = bookAuthorDao.listByBookIds(List.of(entity.bookId()))
+			.stream()
+			.map(DbEntity::data)
+			.toList();
+
+		assertThat(secondResult)
+			.isEmpty();
+	}
 }
