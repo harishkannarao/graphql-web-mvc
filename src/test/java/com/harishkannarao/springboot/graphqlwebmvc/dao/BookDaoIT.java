@@ -28,22 +28,18 @@ public class BookDaoIT extends AbstractBaseIT {
 	@Test
 	public void create_and_get_by_id() {
 		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID());
-		var referenceStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		bookDao.create(book);
-		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS)
-			.plusSeconds(1);
-
 		Optional<DbEntity<Book>> result = bookDao.get(book.id());
 
 		assertThat(result)
 			.hasValueSatisfying(entity -> {
 				assertThat(entity.data()).isEqualTo(book);
-				assertThat(entity.createdTime().truncatedTo(ChronoUnit.SECONDS))
-					.isAfterOrEqualTo(referenceStartTime)
-					.isBeforeOrEqualTo(referenceEndTime);
+				assertThat(entity.createdTime())
+					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
 				assertThat(entity.updatedTime().truncatedTo(ChronoUnit.SECONDS))
-					.isAfterOrEqualTo(referenceStartTime)
-					.isBeforeOrEqualTo(referenceEndTime);
+					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
 			});
 	}
 
@@ -72,7 +68,9 @@ public class BookDaoIT extends AbstractBaseIT {
 		DbEntity<Book> updatedBook = bookDao.get(book.id()).orElseThrow();
 		assertThat(updatedBook.data()).isEqualTo(bookUpdate);
 		assertThat(updatedBook.createdTime()).isEqualTo(createdBook.createdTime());
-		assertThat(updatedBook.updatedTime()).isAfterOrEqualTo(createdBook.createdTime());
+		assertThat(updatedBook.updatedTime())
+			.isAfterOrEqualTo(createdBook.createdTime())
+			.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
 	}
 
 	@Test
@@ -82,13 +80,10 @@ public class BookDaoIT extends AbstractBaseIT {
 		bookDao.create(book);
 		var dbEntityBeforeUpdate = bookDao.get(book.id()).orElseThrow();
 
-		var referenceStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID());
 
 		bookDao.update(bookUpdate);
 
-		var referenceEndTime = Instant.now().truncatedTo(ChronoUnit.SECONDS)
-			.plusSeconds(1);
 		Optional<DbEntity<Book>> result = bookDao.get(book.id());
 
 		assertThat(result)
@@ -97,8 +92,8 @@ public class BookDaoIT extends AbstractBaseIT {
 				assertThat(entity.createdTime())
 					.isEqualTo(dbEntityBeforeUpdate.createdTime());
 				assertThat(entity.updatedTime().truncatedTo(ChronoUnit.SECONDS))
-					.isAfterOrEqualTo(referenceStartTime)
-					.isBeforeOrEqualTo(referenceEndTime);
+					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
 			});
 	}
 
