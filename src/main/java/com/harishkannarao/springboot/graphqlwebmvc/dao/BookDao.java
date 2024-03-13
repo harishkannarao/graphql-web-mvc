@@ -12,6 +12,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,9 @@ public class BookDao {
 	private static final String DELETE_SQL = """
 		DELETE FROM books WHERE data->>'id' = :id
 		""";
+	private static final String DELETE_ALL_SQL = """
+		DELETE FROM books
+		""";
 	private static final String SELECT_BY_ID = """
 		SELECT data, created_time, updated_time FROM books WHERE data->>'id' = :id
 		""";
@@ -38,9 +42,15 @@ public class BookDao {
 		SELECT data, created_time, updated_time FROM books \
 		ORDER BY %s LIMIT :limit OFFSET :offset
 		""";
+	private static final String LIST_WITH_RATING_GREATER_THAN = """
+		SELECT data, created_time, updated_time FROM books \
+		WHERE cast(data->>'rating' as numeric) >= :rating \
+		ORDER BY cast(data->>'rating' as numeric) DESC LIMIT :limit OFFSET :offset
+		""";
 	private static final String PARAM_DATA = "data";
 	private static final String PARAM_ID = "id";
 	private static final String PARAM_IDS = "ids";
+	private static final String PARAM_RATING = "rating";
 	private static final String PARAM_LIMIT = "limit";
 	private static final String PARAM_OFFSET = "offset";
 
@@ -101,7 +111,7 @@ public class BookDao {
 	@SuppressWarnings("SwitchStatementWithTooFewBranches")
 	public List<DbEntity<Book>> listOrderedBy(BookSort sort, int offset, int limit) {
 		final String orderByColumn = switch (sort) {
-			case RATING -> "data->'rating' DESC NULLS LAST, created_time DESC";
+			case RATING -> "cast(data->>'rating' as numeric) DESC NULLS LAST, created_time DESC";
 			default -> "created_time DESC";
 		};
 		final List<RawDbEntity> rawDbEntities = jdbcClient
@@ -115,9 +125,27 @@ public class BookDao {
 			.toList();
 	}
 
+	public List<DbEntity<Book>> listRatingGreaterThan(BigDecimal rating, int offset, int limit) {
+		final List<RawDbEntity> rawDbEntities = jdbcClient
+			.sql(LIST_WITH_RATING_GREATER_THAN)
+			.param(PARAM_RATING, rating)
+			.param(PARAM_LIMIT, limit)
+			.param(PARAM_OFFSET, offset)
+			.query(RawDbEntity.class)
+			.list();
+		return rawDbEntities.stream()
+			.map(this::createDbEntity)
+			.toList();
+	}
+
 	public void delete(String id) {
 		jdbcClient.sql(DELETE_SQL)
 			.param(PARAM_ID, id)
+			.update();
+	}
+
+	public void deleteAll() {
+		jdbcClient.sql(DELETE_ALL_SQL)
 			.update();
 	}
 

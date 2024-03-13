@@ -4,6 +4,7 @@ import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookSort;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,6 +26,11 @@ public class BookDaoIT extends AbstractBaseIT {
 	@Autowired
 	public BookDaoIT(BookDao bookDao) {
 		this.bookDao = bookDao;
+	}
+
+	@BeforeEach
+	public void setUp() {
+		bookDao.deleteAll();
 	}
 
 	@Test
@@ -182,5 +188,32 @@ public class BookDaoIT extends AbstractBaseIT {
 		assertThat(result2.get(0).data()).isEqualTo(book3);
 		assertThat(result2.get(1).data()).isEqualTo(book2);
 		assertThat(result2.get(2).data()).isEqualTo(book1);
+	}
+
+	@Test
+	public void list_with_rating_gt_or_equal_to() {
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3));
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5));
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
+		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book5 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+
+		bookDao.create(book1);
+		bookDao.create(book2);
+		bookDao.create(book3);
+		bookDao.create(book4);
+		bookDao.create(book5);
+
+		List<DbEntity<Book>> result1 = bookDao.listRatingGreaterThan(BigDecimal.valueOf(2.3), 0, 2);
+
+		assertThat(result1).hasSize(2);
+		assertThat(result1.get(0).data()).isEqualTo(book2);
+		assertThat(result1.get(1).data()).isEqualTo(book3);
+
+		List<DbEntity<Book>> result2 = bookDao.listRatingGreaterThan(BigDecimal.valueOf(2.3), 1, 2);
+
+		assertThat(result2).hasSize(2);
+		assertThat(result2.get(0).data()).isEqualTo(book3);
+		assertThat(result2.get(1).data()).isEqualTo(book1);
 	}
 }
