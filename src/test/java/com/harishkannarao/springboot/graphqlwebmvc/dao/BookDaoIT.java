@@ -142,11 +142,18 @@ public class BookDaoIT extends AbstractBaseIT {
 		bookDao.create(book3);
 		bookDao.create(book4);
 
-		List<DbEntity<Book>> result = bookDao.listOrderedBy(BookSort.RATING, 0, 3);
+		List<DbEntity<Book>> result1 = bookDao.listOrderedBy(BookSort.RATING, 0, 3);
 
-		assertThat(result).hasSize(3);
-		assertThat(result.get(0).data()).isEqualTo(book2);
-		assertThat(result.get(1).data()).isEqualTo(book1);
-		assertThat(result.get(2).data()).isEqualTo(book4);
+		assertThat(result1).hasSize(3);
+		assertThat(result1.get(0).data()).isEqualTo(book2);
+		assertThat(result1.get(1).data()).isEqualTo(book1);
+		assertThat(result1.get(2).data()).isEqualTo(book4);
+
+		List<DbEntity<Book>> result2 = bookDao.listOrderedBy(BookSort.RATING, 1, 3);
+
+		assertThat(result2).hasSize(3);
+		assertThat(result2.get(0).data()).isEqualTo(book1);
+		assertThat(result2.get(1).data()).isEqualTo(book4);
+		assertThat(result2.get(2).data()).isEqualTo(book3);
 	}
 }
