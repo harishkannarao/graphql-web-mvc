@@ -3,10 +3,12 @@ package com.harishkannarao.springboot.graphqlwebmvc.dao;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
+import com.harishkannarao.springboot.graphqlwebmvc.model.BookSort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -126,5 +128,25 @@ public class BookDaoIT extends AbstractBaseIT {
 			.anySatisfy(entity -> assertThat(entity.data()).isEqualTo(book1))
 			.anySatisfy(entity -> assertThat(entity.data()).isEqualTo(book3))
 			.hasSize(2);
+	}
+
+	@Test
+	public void list_by_rating() {
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3));
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5));
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+
+		bookDao.create(book1);
+		bookDao.create(book2);
+		bookDao.create(book3);
+		bookDao.create(book4);
+
+		List<DbEntity<Book>> result = bookDao.listOrderedBy(BookSort.RATING, 0, 3);
+
+		assertThat(result).hasSize(3);
+		assertThat(result.get(0).data()).isEqualTo(book2);
+		assertThat(result.get(1).data()).isEqualTo(book1);
+		assertThat(result.get(2).data()).isEqualTo(book4);
 	}
 }

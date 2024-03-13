@@ -36,7 +36,7 @@ public class BookDao {
 		""";
 	private static final String LIST_AND_ORDER_BY = """
 		SELECT data, created_time, updated_time FROM books \
-		ORDER BY %s NULLS LAST LIMIT :limit OFFSET :offset
+		ORDER BY %s LIMIT :limit OFFSET :offset
 		""";
 	private static final String PARAM_DATA = "data";
 	private static final String PARAM_ID = "id";
@@ -101,7 +101,7 @@ public class BookDao {
 	@SuppressWarnings("SwitchStatementWithTooFewBranches")
 	public List<DbEntity<Book>> listOrderedBy(BookSort sort, int offset, int limit) {
 		final String orderByColumn = switch (sort) {
-			case RATING -> "data->>'rating'::numeric DESC";
+			case RATING -> "data->'rating' DESC NULLS LAST, created_time DESC";
 			default -> "created_time DESC";
 		};
 		final List<RawDbEntity> rawDbEntities = jdbcClient
