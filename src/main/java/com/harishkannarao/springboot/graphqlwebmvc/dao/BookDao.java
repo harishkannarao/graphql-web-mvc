@@ -3,6 +3,7 @@ package com.harishkannarao.springboot.graphqlwebmvc.dao;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.RawDbEntity;
+import com.harishkannarao.springboot.graphqlwebmvc.model.BookSort;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -32,6 +33,9 @@ public class BookDao {
 		""";
 	private static final String SELECT_BY_IDS = """
 		SELECT data, created_time, updated_time FROM books WHERE data->>'id'::text in (:ids)
+		""";
+	private static final String LIST_AND_ORDER_BY = """
+		SELECT data, created_time, updated_time FROM books ORDER BY %s NULLS LAST LIMIT %s OFFSET %s
 		""";
 	private static final String PARAM_DATA = "data";
 	private static final String PARAM_ID = "id";
@@ -84,6 +88,21 @@ public class BookDao {
 		final List<RawDbEntity> rawDbEntities = jdbcClient
 			.sql(SELECT_BY_IDS)
 			.param(PARAM_IDS, ids)
+			.query(RawDbEntity.class)
+			.list();
+		return rawDbEntities.stream()
+			.map(this::createDbEntity)
+			.toList();
+	}
+
+	@SuppressWarnings("SwitchStatementWithTooFewBranches")
+	public List<DbEntity<Book>> listOrderedBy(BookSort sort, int offset, int limit) {
+		final String orderByColumn = switch (sort) {
+			case RATING -> "data->>'rating'::numeric DESC";
+			default -> "created_time DESC";
+		};
+		final List<RawDbEntity> rawDbEntities = jdbcClient
+			.sql(LIST_AND_ORDER_BY.formatted(orderByColumn, limit, offset))
 			.query(RawDbEntity.class)
 			.list();
 		return rawDbEntities.stream()
