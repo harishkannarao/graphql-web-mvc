@@ -156,4 +156,31 @@ public class BookDaoIT extends AbstractBaseIT {
 		assertThat(result2.get(1).data()).isEqualTo(book4);
 		assertThat(result2.get(2).data()).isEqualTo(book3);
 	}
+
+	@Test
+	public void list_by_creation_time() {
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3));
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5));
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+
+		bookDao.create(book1);
+		bookDao.create(book2);
+		bookDao.create(book3);
+		bookDao.create(book4);
+
+		List<DbEntity<Book>> result1 = bookDao.listOrderedBy(BookSort.RECENT, 0, 3);
+
+		assertThat(result1).hasSize(3);
+		assertThat(result1.get(0).data()).isEqualTo(book4);
+		assertThat(result1.get(1).data()).isEqualTo(book3);
+		assertThat(result1.get(2).data()).isEqualTo(book2);
+
+		List<DbEntity<Book>> result2 = bookDao.listOrderedBy(BookSort.RECENT, 1, 3);
+
+		assertThat(result2).hasSize(3);
+		assertThat(result2.get(0).data()).isEqualTo(book3);
+		assertThat(result2.get(1).data()).isEqualTo(book2);
+		assertThat(result2.get(2).data()).isEqualTo(book1);
+	}
 }
