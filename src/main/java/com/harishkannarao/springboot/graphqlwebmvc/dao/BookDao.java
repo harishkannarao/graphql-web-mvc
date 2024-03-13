@@ -23,16 +23,16 @@ public class BookDao {
 		""";
 	private static final String UPDATE_SQL = """
 		UPDATE books SET data = :data::jsonb, updated_time = timezone('UTC', now()) \
-		WHERE data->>'id'::text = :id
+		WHERE data->>'id' = :id
 		""";
 	private static final String DELETE_SQL = """
-		DELETE FROM books WHERE data->>'id'::text = :id
+		DELETE FROM books WHERE data->>'id' = :id
 		""";
 	private static final String SELECT_BY_ID = """
-		SELECT data, created_time, updated_time FROM books WHERE data->>'id'::text = :id
+		SELECT data, created_time, updated_time FROM books WHERE data->>'id' = :id
 		""";
 	private static final String SELECT_BY_IDS = """
-		SELECT data, created_time, updated_time FROM books WHERE data->>'id'::text in (:ids)
+		SELECT data, created_time, updated_time FROM books WHERE data->>'id' in (:ids)
 		""";
 	private static final String LIST_AND_ORDER_BY = """
 		SELECT data, created_time, updated_time FROM books \
