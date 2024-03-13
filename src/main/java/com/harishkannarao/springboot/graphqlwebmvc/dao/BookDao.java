@@ -35,11 +35,14 @@ public class BookDao {
 		SELECT data, created_time, updated_time FROM books WHERE data->>'id'::text in (:ids)
 		""";
 	private static final String LIST_AND_ORDER_BY = """
-		SELECT data, created_time, updated_time FROM books ORDER BY %s NULLS LAST LIMIT %s OFFSET %s
+		SELECT data, created_time, updated_time FROM books \
+		ORDER BY %s NULLS LAST LIMIT :limit OFFSET :offset
 		""";
 	private static final String PARAM_DATA = "data";
 	private static final String PARAM_ID = "id";
 	private static final String PARAM_IDS = "ids";
+	private static final String PARAM_LIMIT = "limit";
+	private static final String PARAM_OFFSET = "offset";
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -102,7 +105,9 @@ public class BookDao {
 			default -> "created_time DESC";
 		};
 		final List<RawDbEntity> rawDbEntities = jdbcClient
-			.sql(LIST_AND_ORDER_BY.formatted(orderByColumn, limit, offset))
+			.sql(LIST_AND_ORDER_BY.formatted(orderByColumn))
+			.param(PARAM_LIMIT, limit)
+			.param(PARAM_OFFSET, offset)
 			.query(RawDbEntity.class)
 			.list();
 		return rawDbEntities.stream()
