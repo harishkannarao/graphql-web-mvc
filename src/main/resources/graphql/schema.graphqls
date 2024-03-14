@@ -1,15 +1,18 @@
-"String should not be blank"
+"Constraint: String should not be blank"
 directive @NotBlank on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
-"Regex pattern validation"
+"Constraint: Regex pattern validation"
 directive @Pattern(regexp : String!) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+"Constraint: Not starts with validation"
+directive @NotStartsWith(prefix : String!) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 type Query {
     """
     Operation that returns greeting with name.
     If name is not provided, then it is defaulted to 'Spring'
     """
-    greeting(name: String! = "Spring" @NotBlank @Pattern(regexp: ".{0,11}")): String
+    greeting(name: String! = "Spring" @NotBlank @Pattern(regexp: ".{0,11}") @NotStartsWith(prefix: "boo")): String
 }
 
 type Mutation {

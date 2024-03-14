@@ -107,6 +107,22 @@ public class GreetingQueryIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void test_greeting_returns_validation_error_if_starts_with_boo_prefix() {
+		String inputName = "boot-error";
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryGreetingWithParam")
+			.variable("name", inputName)
+			.execute();
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).isEqualTo("/greeting/name must not start with prefix \"boo\"");
+					assertThat(error.getPath()).isEqualTo("greeting");
+				}));
+	}
+
+	@Test
 	public void test_greeting_returns_partial_error() {
 		String inputName = "throw-error";
 		GraphQlTester.Response result = httpGraphQlTester
