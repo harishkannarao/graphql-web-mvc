@@ -33,7 +33,18 @@ input CreateBookRequest {
     rating: Float
 }
 
+input CreateAuthorRequest {
+    id: ID! @NotBlank
+    name: String! @NotBlank @Pattern(regexp: ".{0,100}")
+}
+
 type CreateBookResponse implements MutationResponse {
+    success: Boolean!
+    message: String!
+    book: Book
+}
+
+type CreateBookAuthorResponse implements MutationResponse {
     success: Boolean!
     message: String!
     book: Book
@@ -49,4 +60,5 @@ type Book {
 type Author {
     id: ID!
     name: String!
+    books: [Book!]!
 }
