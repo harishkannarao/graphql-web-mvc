@@ -9,6 +9,7 @@ import org.springframework.dao.DuplicateKeyException;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -108,6 +109,13 @@ public class AuthorDaoIT extends AbstractBaseIT {
 		authorDao.delete(author.id());
 
 		assertThat(authorDao.get(author.id())).isEmpty();
+	}
+
+	@Test
+	public void list_by_ids_returns_empty_list_given_input_is_empty_list() {
+		List<DbEntity<Author>> result = authorDao.list(Collections.emptyList());
+
+		assertThat(result).isEmpty();
 	}
 
 	@Test

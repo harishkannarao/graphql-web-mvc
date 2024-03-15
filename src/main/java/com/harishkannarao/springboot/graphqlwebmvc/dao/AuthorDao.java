@@ -11,6 +11,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,6 +82,9 @@ public class AuthorDao {
 	}
 
 	public List<DbEntity<Author>> list(List<String> ids) {
+		if (ids.isEmpty()) {
+			return Collections.emptyList();
+		}
 		final List<RawDbEntity> rawDbEntities = jdbcClient
 			.sql(SELECT_BY_IDS)
 			.param(PARAM_IDS, ids)

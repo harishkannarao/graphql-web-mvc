@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -30,16 +32,25 @@ public class AuthorGraphqlController {
 
 	@BatchMapping(typeName = "Book", field = "authors", maxBatchSize = 100)
 	public Map<Book, List<Author>> listAuthors(final List<Book> books) {
+		List<String> bookIds = books.stream().map(Book::id).toList();
+		List<BookAuthor> bookAuthorsList = bookAuthorDao.listByBookIds(bookIds)
+			.stream()
+			.map(DbEntity::data).toList();
+		List<String> authorIds = bookAuthorsList.stream().map(BookAuthor::authorId).toList();
+
+		Map<String, List<BookAuthor>> bookIdAuthorMapping = bookAuthorsList.stream()
+			.collect(Collectors.groupingBy(BookAuthor::bookId));
+		Map<String, Author> authorIdMap = authorDao.list(authorIds).stream().map(DbEntity::data)
+			.collect(Collectors.toUnmodifiableMap(Author::id, author -> author));
+
 		return books.stream()
 			.map(book -> {
-				List<String> authorIds = bookAuthorDao.listByBookIds(List.of(book.id()))
-					.stream()
-					.map(DbEntity::data)
-					.map(BookAuthor::authorId)
+				List<BookAuthor> bookAuthors = Optional.ofNullable(bookIdAuthorMapping.get(book.id()))
+					.orElse(Collections.emptyList());
+				List<Author> authors = bookAuthors.stream()
+					.map(bookAuthor -> authorIdMap.get(bookAuthor.authorId()))
+					.filter(Objects::nonNull)
 					.toList();
-				List<Author> authors = authorIds.isEmpty()
-					? Collections.emptyList()
-					: authorDao.list(authorIds).stream().map(DbEntity::data).toList();
 				return Map.entry(book, authors);
 			})
 			.collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
