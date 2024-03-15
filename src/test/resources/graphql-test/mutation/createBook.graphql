@@ -10,6 +10,7 @@ mutation CreateBook(
         book @include(if: $returnCreatedBook) {
             id,
             name,
+            rating
             authors @include(if: $includeAuthors) {
                 id,
                 name

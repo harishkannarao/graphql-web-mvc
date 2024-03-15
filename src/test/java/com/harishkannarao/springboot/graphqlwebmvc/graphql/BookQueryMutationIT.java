@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +26,8 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	public void createBook_successfully_creates_and_returns_book() {
 		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
-			"book-" + UUID.randomUUID()
-		);
+			"book-" + UUID.randomUUID(),
+			null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("book", createBookRequest)
@@ -44,6 +45,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		assertThat(createBookResponse.message()).isEqualTo("success");
 		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
 		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
+		assertThat(createBookResponse.book().rating()).isEqualTo(createBookRequest.rating());
 
 		response
 			.path("createBook.book.authors")
@@ -54,8 +56,8 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	public void createBook_successfully_creates_and_returns_book_with_authors() {
 		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
-			"book-" + UUID.randomUUID()
-		);
+			"book-" + UUID.randomUUID(),
+			BigDecimal.valueOf(2.25));
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("book", createBookRequest)
@@ -74,6 +76,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		assertThat(createBookResponse.message()).isEqualTo("success");
 		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
 		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
+		assertThat(createBookResponse.book().rating()).isEqualTo(createBookRequest.rating());
 
 		response
 			.path("createBook.book.authors")
@@ -84,8 +87,8 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	public void createBook_successfully_creates_and_does_not_return_created_book_and_message() {
 		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
-			"book-" + UUID.randomUUID()
-		);
+			"book-" + UUID.randomUUID(),
+			null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("book", createBookRequest)
@@ -110,8 +113,8 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	public void createBook_fails_with_duplicate_key_error() {
 		CreateBookRequest createBookRequest = new CreateBookRequest(
 			UUID.randomUUID().toString(),
-			"book-" + UUID.randomUUID()
-		);
+			"book-" + UUID.randomUUID(),
+			null);
 		GraphQlTester.Response successResponse = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("book", createBookRequest)

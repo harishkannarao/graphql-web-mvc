@@ -27,7 +27,7 @@ public class BookGraphqlController {
 	public CreateBookResponse createBook(
 		@Argument(name = "book") CreateBookRequest request) {
 		logger.info("createBook request received as {}", request);
-		bookDao.create(new Book(request.id(), request.name(), null));
+		bookDao.create(new Book(request.id(), request.name(), request.rating()));
 		Optional<Book> createdBook = bookDao.get(request.id()).map(DbEntity::data);
 		return new CreateBookResponse(
 			createdBook.isPresent(),

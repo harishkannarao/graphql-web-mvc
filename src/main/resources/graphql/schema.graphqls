@@ -30,6 +30,7 @@ interface MutationResponse {
 input CreateBookRequest {
     id: ID! @NotBlank
     name: String! @NotBlank @Pattern(regexp: ".{0,100}")
+    rating: Float
 }
 
 type CreateBookResponse implements MutationResponse {
@@ -41,6 +42,7 @@ type CreateBookResponse implements MutationResponse {
 type Book {
     id: ID!
     name: String!
+    rating: Float
     authors: [Author!]!
 }
 
