@@ -54,6 +54,6 @@ public class GreetingRestIT extends AbstractBaseIT {
 			.contains(requestId)
 			.contains("Bad Request")
 			.contains("400")
-			.contains("/graphql-web-mvc/rest/greeting");
+			.contains("/rest/greeting");
 	}
 }

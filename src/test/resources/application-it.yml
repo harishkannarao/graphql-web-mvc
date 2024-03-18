@@ -1,3 +1,7 @@
+server:
+  servlet:
+    context-path: "${APP_CONTEXT_PATH:/graphql-web-mvc}"
+
 test:
   application:
     baseUrl: "http://localhost:${server.port}${server.servlet.context-path}"

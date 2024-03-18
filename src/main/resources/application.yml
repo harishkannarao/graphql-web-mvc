@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: '/graphql-web-mvc'
+    context-path: "${APP_CONTEXT_PATH:}"
 
 spring:
   threads:
