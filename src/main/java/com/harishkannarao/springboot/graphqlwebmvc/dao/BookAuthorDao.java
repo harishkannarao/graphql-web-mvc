@@ -17,7 +17,7 @@ import java.util.List;
 public class BookAuthorDao {
 	private static final String INSERT_SQL = """
 		INSERT INTO books_authors(data, created_time, updated_time) \
-		VALUES (:data::jsonb, timezone('UTC', now()), timezone('UTC', now()))
+		VALUES (:data::jsonb, now(), now())
 		""";
 	private static final String DELETE_SQL = """
 		DELETE FROM books_authors \

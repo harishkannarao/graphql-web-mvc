@@ -21,10 +21,10 @@ import java.util.Optional;
 public class BookDao {
 	private static final String INSERT_SQL = """
 		INSERT INTO books(data, created_time, updated_time) \
-		VALUES (:data::jsonb, timezone('UTC', now()), timezone('UTC', now()))
+		VALUES (:data::jsonb, now(), now())
 		""";
 	private static final String UPDATE_SQL = """
-		UPDATE books SET data = :data::jsonb, updated_time = timezone('UTC', now()) \
+		UPDATE books SET data = :data::jsonb, updated_time = now() \
 		WHERE data->>'id' = :id
 		""";
 	private static final String DELETE_SQL = """

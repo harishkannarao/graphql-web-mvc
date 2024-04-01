@@ -19,10 +19,10 @@ import java.util.Optional;
 public class AuthorDao {
 	private static final String INSERT_SQL = """
 		INSERT INTO authors(data, created_time, updated_time) \
-		VALUES (:data::jsonb, timezone('UTC', now()), timezone('UTC', now()))
+		VALUES (:data::jsonb, now(), now())
 		""";
 	private static final String UPDATE_SQL = """
-		UPDATE authors SET data = :data::jsonb, updated_time = timezone('UTC', now()) \
+		UPDATE authors SET data = :data::jsonb, updated_time = now() \
 		WHERE data->>'id'::text = :id
 		""";
 	private static final String DELETE_SQL = """

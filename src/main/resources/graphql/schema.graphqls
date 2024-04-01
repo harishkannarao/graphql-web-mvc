@@ -18,8 +18,10 @@ type Query {
 type Mutation {
     """
     Operation to create book and return the created book.
+    book: mutation payload
+    responseAuthorLimit: max number of authors to return per book
     """
-    createBook(book: CreateBookRequest!): CreateBookResponse
+    createBook(book: CreateBookRequest!, responseAuthorLimit: Int! = 5): CreateBookResponse
 }
 
 interface MutationResponse {

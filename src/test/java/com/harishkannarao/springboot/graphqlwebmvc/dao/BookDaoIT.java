@@ -100,7 +100,7 @@ public class BookDaoIT extends AbstractBaseIT {
 				assertThat(entity.data()).isEqualTo(bookUpdate);
 				assertThat(entity.createdTime())
 					.isEqualTo(dbEntityBeforeUpdate.createdTime());
-				assertThat(entity.updatedTime().truncatedTo(ChronoUnit.SECONDS))
+				assertThat(entity.updatedTime())
 					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
 					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
 			});

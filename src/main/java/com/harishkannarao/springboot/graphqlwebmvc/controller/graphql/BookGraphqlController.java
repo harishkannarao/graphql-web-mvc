@@ -1,10 +1,11 @@
 package com.harishkannarao.springboot.graphqlwebmvc.controller.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
-import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
+import graphql.GraphQLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -12,6 +13,8 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.Optional;
+
+import static com.harishkannarao.springboot.graphqlwebmvc.util.Constants.RESPONSE_AUTHOR_LIMIT;
 
 @Controller
 public class BookGraphqlController {
@@ -25,8 +28,11 @@ public class BookGraphqlController {
 
 	@MutationMapping(name = "createBook")
 	public CreateBookResponse createBook(
-		@Argument(name = "book") CreateBookRequest request) {
+		@Argument(name = "book") CreateBookRequest request,
+		@Argument(name = RESPONSE_AUTHOR_LIMIT) Integer resAuthorLimit,
+		GraphQLContext graphQLContext) {
 		logger.info("createBook request received as {}", request);
+		graphQLContext.put(RESPONSE_AUTHOR_LIMIT, resAuthorLimit);
 		bookDao.create(new Book(request.id(), request.name(), request.rating()));
 		Optional<Book> createdBook = bookDao.get(request.id()).map(DbEntity::data);
 		return new CreateBookResponse(

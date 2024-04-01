@@ -1,6 +1,12 @@
 package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.AuthorDao;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
+import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
+import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
+import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
 import org.junit.jupiter.api.Test;
@@ -9,6 +15,7 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,10 +23,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BookQueryMutationIT extends AbstractBaseIT {
 
 	private final HttpGraphQlTester httpGraphQlTester;
+	private final BookDao bookDao;
+	private final AuthorDao authorDao;
+	private final BookAuthorDao bookAuthorDao;
 
 	@Autowired
-	public BookQueryMutationIT(HttpGraphQlTester httpGraphQlTester) {
+	public BookQueryMutationIT(HttpGraphQlTester httpGraphQlTester,
+														 BookDao bookDao,
+														 AuthorDao authorDao,
+														 BookAuthorDao bookAuthorDao) {
 		this.httpGraphQlTester = httpGraphQlTester;
+		this.bookDao = bookDao;
+		this.authorDao = authorDao;
+		this.bookAuthorDao = bookAuthorDao;
 	}
 
 	@Test
@@ -53,10 +69,26 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
-	public void createBook_successfully_creates_and_returns_book_with_authors() {
+	public void createBook_successfully_creates_and_returns_book_with_authors_with_default_limit() {
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+
+		var author1 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
+		authorDao.create(author1);
+		var author2 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
+		authorDao.create(author2);
+		var author3 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
+		authorDao.create(author3);
+
+		var bookAuthor1 = new BookAuthor(book.id(), author1.id());
+		var bookAuthor2 = new BookAuthor(book.id(), author2.id());
+		var bookAuthor3 = new BookAuthor(book.id(), author3.id());
+		bookAuthorDao.create(bookAuthor1);
+		bookAuthorDao.create(bookAuthor2);
+		bookAuthorDao.create(bookAuthor3);
+
 		CreateBookRequest createBookRequest = new CreateBookRequest(
-			UUID.randomUUID().toString(),
-			"book-" + UUID.randomUUID(),
+			book.id(),
+			book.name(),
 			BigDecimal.valueOf(2.25));
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
@@ -78,9 +110,65 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
 		assertThat(createBookResponse.book().rating()).isEqualTo(createBookRequest.rating());
 
-		response
+		List<Author> authors = response
 			.path("createBook.book.authors")
-			.hasValue();
+			.hasValue()
+			.entityList(Author.class)
+			.get();
+
+		assertThat(authors)
+			.hasSize(2)
+			.contains(author3, author2);
+	}
+
+	@Test
+	public void createBook_successfully_creates_and_returns_book_with_authors_with_limit() {
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+
+		var author1 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
+		authorDao.create(author1);
+		var author2 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
+		authorDao.create(author2);
+
+		var bookAuthor1 = new BookAuthor(book.id(), author1.id());
+		var bookAuthor2 = new BookAuthor(book.id(), author2.id());
+		bookAuthorDao.create(bookAuthor1);
+		bookAuthorDao.create(bookAuthor2);
+
+		CreateBookRequest createBookRequest = new CreateBookRequest(
+			book.id(),
+			book.name(),
+			BigDecimal.valueOf(2.25));
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createBook")
+			.variable("book", createBookRequest)
+			.variable("includeAuthors", Boolean.TRUE)
+			.variable("responseAuthorLimit", 1)
+			.execute();
+
+		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
+
+		CreateBookResponse createBookResponse = response
+			.path("createBook")
+			.hasValue()
+			.entity(CreateBookResponse.class)
+			.get();
+
+		assertThat(createBookResponse.success()).isTrue();
+		assertThat(createBookResponse.message()).isEqualTo("success");
+		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
+		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
+		assertThat(createBookResponse.book().rating()).isEqualTo(createBookRequest.rating());
+
+		List<Author> authors = response
+			.path("createBook.book.authors")
+			.hasValue()
+			.entityList(Author.class)
+			.get();
+
+		assertThat(authors)
+			.hasSize(1)
+			.contains(author2);
 	}
 
 	@Test
