@@ -1,11 +1,11 @@
 mutation CreateBook(
-    $book: CreateBookRequest!,
+    $bookInput: BookInput!,
     $skipMessage: Boolean! = false,
     $returnCreatedBook: Boolean! = true,
     $includeAuthors: Boolean! = false,
     $responseAuthorLimit: Int! = 2
 ) {
-    createBook(book: $book, responseAuthorLimit: $responseAuthorLimit) {
+    createBook(bookInput: $bookInput, responseAuthorLimit: $responseAuthorLimit) {
         success
         message @skip(if: $skipMessage)
         book @include(if: $returnCreatedBook) {

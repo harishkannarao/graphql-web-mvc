@@ -7,7 +7,7 @@ import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRequest;
+import com.harishkannarao.springboot.graphqlwebmvc.model.BookInput;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +40,13 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_returns_book() {
-		CreateBookRequest createBookRequest = new CreateBookRequest(
+		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
 			null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
-			.variable("book", createBookRequest)
+			.variable("bookInput", bookInput)
 			.execute();
 
 		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
@@ -59,9 +59,9 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		assertThat(createBookResponse.success()).isTrue();
 		assertThat(createBookResponse.message()).isEqualTo("success");
-		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
-		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
-		assertThat(createBookResponse.book().rating()).isEqualTo(createBookRequest.rating());
+		assertThat(createBookResponse.book().id()).isEqualTo(bookInput.id());
+		assertThat(createBookResponse.book().name()).isEqualTo(bookInput.name());
+		assertThat(createBookResponse.book().rating()).isEqualTo(bookInput.rating());
 
 		response
 			.path("createBook.book.authors")
@@ -86,13 +86,13 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		bookAuthorDao.create(bookAuthor2);
 		bookAuthorDao.create(bookAuthor3);
 
-		CreateBookRequest createBookRequest = new CreateBookRequest(
+		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
 			BigDecimal.valueOf(2.25));
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
-			.variable("book", createBookRequest)
+			.variable("bookInput", bookInput)
 			.variable("includeAuthors", Boolean.TRUE)
 			.execute();
 
@@ -106,9 +106,9 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		assertThat(createBookResponse.success()).isTrue();
 		assertThat(createBookResponse.message()).isEqualTo("success");
-		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
-		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
-		assertThat(createBookResponse.book().rating()).isEqualTo(createBookRequest.rating());
+		assertThat(createBookResponse.book().id()).isEqualTo(bookInput.id());
+		assertThat(createBookResponse.book().name()).isEqualTo(bookInput.name());
+		assertThat(createBookResponse.book().rating()).isEqualTo(bookInput.rating());
 
 		List<Author> authors = response
 			.path("createBook.book.authors")
@@ -135,13 +135,13 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 		bookAuthorDao.create(bookAuthor1);
 		bookAuthorDao.create(bookAuthor2);
 
-		CreateBookRequest createBookRequest = new CreateBookRequest(
+		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
 			BigDecimal.valueOf(2.25));
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
-			.variable("book", createBookRequest)
+			.variable("bookInput", bookInput)
 			.variable("includeAuthors", Boolean.TRUE)
 			.variable("responseAuthorLimit", 1)
 			.execute();
@@ -156,9 +156,9 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		assertThat(createBookResponse.success()).isTrue();
 		assertThat(createBookResponse.message()).isEqualTo("success");
-		assertThat(createBookResponse.book().id()).isEqualTo(createBookRequest.id());
-		assertThat(createBookResponse.book().name()).isEqualTo(createBookRequest.name());
-		assertThat(createBookResponse.book().rating()).isEqualTo(createBookRequest.rating());
+		assertThat(createBookResponse.book().id()).isEqualTo(bookInput.id());
+		assertThat(createBookResponse.book().name()).isEqualTo(bookInput.name());
+		assertThat(createBookResponse.book().rating()).isEqualTo(bookInput.rating());
 
 		List<Author> authors = response
 			.path("createBook.book.authors")
@@ -173,13 +173,13 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_does_not_return_created_book_and_message() {
-		CreateBookRequest createBookRequest = new CreateBookRequest(
+		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
 			null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
-			.variable("book", createBookRequest)
+			.variable("bookInput", bookInput)
 			.variable("skipMessage", Boolean.TRUE)
 			.variable("returnCreatedBook", Boolean.FALSE)
 			.execute();
@@ -199,13 +199,13 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_fails_with_duplicate_key_error() {
-		CreateBookRequest createBookRequest = new CreateBookRequest(
+		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
 			null);
 		GraphQlTester.Response successResponse = httpGraphQlTester
 			.documentName("mutation/createBook")
-			.variable("book", createBookRequest)
+			.variable("bookInput", bookInput)
 			.execute();
 
 		successResponse.errors().satisfy(errors -> assertThat(errors).isEmpty());
@@ -221,7 +221,7 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 
 		GraphQlTester.Response errorResponse = httpGraphQlTester
 			.documentName("mutation/createBook")
-			.variable("book", createBookRequest)
+			.variable("bookInput", bookInput)
 			.execute();
 
 		errorResponse

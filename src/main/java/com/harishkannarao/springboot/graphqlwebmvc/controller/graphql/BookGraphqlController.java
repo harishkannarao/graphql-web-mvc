@@ -3,7 +3,7 @@ package com.harishkannarao.springboot.graphqlwebmvc.controller.graphql;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookRequest;
+import com.harishkannarao.springboot.graphqlwebmvc.model.BookInput;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
 import graphql.GraphQLContext;
 import org.slf4j.Logger;
@@ -28,13 +28,13 @@ public class BookGraphqlController {
 
 	@MutationMapping(name = "createBook")
 	public CreateBookResponse createBook(
-		@Argument(name = "book") CreateBookRequest request,
+		@Argument(name = "bookInput") BookInput bookInput,
 		@Argument(name = RESPONSE_AUTHOR_LIMIT) Integer resAuthorLimit,
 		GraphQLContext graphQLContext) {
-		logger.info("createBook request received as {}", request);
+		logger.info("createBook bookInput received as {}", bookInput);
 		graphQLContext.put(RESPONSE_AUTHOR_LIMIT, resAuthorLimit);
-		bookDao.create(new Book(request.id(), request.name(), request.rating()));
-		Optional<Book> createdBook = bookDao.get(request.id()).map(DbEntity::data);
+		bookDao.create(new Book(bookInput.id(), bookInput.name(), bookInput.rating()));
+		Optional<Book> createdBook = bookDao.get(bookInput.id()).map(DbEntity::data);
 		return new CreateBookResponse(
 			createdBook.isPresent(),
 			createdBook.isPresent() ? "success" : "error",
