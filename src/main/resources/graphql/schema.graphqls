@@ -35,7 +35,7 @@ input BookInput {
     rating: Float
 }
 
-input CreateAuthorRequest {
+input AuthorInput {
     id: ID! @NotBlank
     name: String! @NotBlank @Pattern(regexp: ".{0,100}")
 }
