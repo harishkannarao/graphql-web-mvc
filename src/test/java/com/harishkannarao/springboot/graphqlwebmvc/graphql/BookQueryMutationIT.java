@@ -172,6 +172,29 @@ public class BookQueryMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void createBook_returns_validation_error_for_invalid_author_limit() {
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+
+		BookInput bookInput = new BookInput(
+			book.id(),
+			book.name(),
+			BigDecimal.valueOf(2.25));
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createBook")
+			.variable("bookInput", bookInput)
+			.variable("includeAuthors", Boolean.TRUE)
+			.variable("responseAuthorLimit", 101)
+			.execute();
+
+		response.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).isEqualTo("/createBook/book/authors/limit must be less than or equal to 100");
+					assertThat(error.getPath()).isEqualTo("createBook.book.authors");
+				}));
+	}
+
+	@Test
 	public void createBook_successfully_creates_and_does_not_return_created_book_and_message() {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),

@@ -7,6 +7,12 @@ directive @Pattern(regexp : String!) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINI
 "Constraint: Not starts with validation"
 directive @NotStartsWith(prefix : String!) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
+"Constraint: Maximum value"
+directive @Max(value : Int! = 2147483647) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+"Constraint: Positive value"
+directive @Positive on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 type Query {
     """
     Operation that returns greeting with name.
@@ -56,7 +62,7 @@ type Book {
     id: ID!
     name: String!
     rating: Float
-    authors(limit: Int! = 5): [Author!]!
+    authors(limit: Int! = 5 @Positive @Max(value : 100)): [Author!]!
 }
 
 type Author {
