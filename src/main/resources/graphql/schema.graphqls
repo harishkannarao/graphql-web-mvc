@@ -19,9 +19,8 @@ type Mutation {
     """
     Operation to create book and return the created book.
     bookInput: mutation payload
-    responseAuthorLimit: max number of authors to return per book
     """
-    createBook(bookInput: BookInput!, responseAuthorLimit: Int! = 5): CreateBookResponse
+    createBook(bookInput: BookInput!): CreateBookResponse
 }
 
 interface MutationResponse {
@@ -57,7 +56,7 @@ type Book {
     id: ID!
     name: String!
     rating: Float
-    authors: [Author!]!
+    authors(limit: Int! = 5): [Author!]!
 }
 
 type Author {

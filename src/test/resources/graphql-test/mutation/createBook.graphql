@@ -5,14 +5,14 @@ mutation CreateBook(
     $includeAuthors: Boolean! = false,
     $responseAuthorLimit: Int! = 2
 ) {
-    createBook(bookInput: $bookInput, responseAuthorLimit: $responseAuthorLimit) {
+    createBook(bookInput: $bookInput) {
         success
         message @skip(if: $skipMessage)
         book @include(if: $returnCreatedBook) {
             id,
             name,
             rating
-            authors @include(if: $includeAuthors) {
+            authors(limit: $responseAuthorLimit) @include(if: $includeAuthors) {
                 id,
                 name
             }

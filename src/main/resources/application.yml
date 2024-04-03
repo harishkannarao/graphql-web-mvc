@@ -20,6 +20,8 @@ spring:
       max-age: "1800s"
 
 app:
+  data-loader:
+    max-batch-size: "${APP_DATA_LOADER_MAX_BATCH_SIZE:100}"
   datasource:
     hikari:
       jdbc-url: "${APP_DATASOURCE_URL:jdbc:postgresql://localhost:5432/test-user}"
