@@ -37,7 +37,7 @@ public class BookQueryIT extends AbstractBaseIT {
 
 	@Test
 	public void listBooks_returnsBooks_withAuthors() {
-		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), null);
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
 		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null);
 		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null);
 		Book book4 = new Book(UUID.randomUUID().toString(), "book-4-" + UUID.randomUUID(), null);
