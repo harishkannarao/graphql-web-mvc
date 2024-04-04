@@ -43,7 +43,9 @@ public class BookAuthorsDataLoader
 		List<BookAuthor> bookAuthorsList = bookAuthorDao.listByBookIds(bookIds)
 			.stream()
 			.map(DbEntity::data).toList();
-		List<String> authorIds = bookAuthorsList.stream().map(BookAuthor::authorId).toList();
+		List<String> authorIds = bookAuthorsList.stream().map(BookAuthor::authorId)
+			.collect(Collectors.toSet())
+			.stream().toList();
 
 		Map<String, List<BookAuthor>> bookIdAuthorMapping = bookAuthorsList.stream()
 			.collect(Collectors.groupingBy(BookAuthor::bookId));

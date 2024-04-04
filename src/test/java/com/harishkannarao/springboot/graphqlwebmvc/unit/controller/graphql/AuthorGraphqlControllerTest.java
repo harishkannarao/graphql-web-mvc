@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -52,4 +53,18 @@ public class AuthorGraphqlControllerTest {
 			.hasSize(2)
 			.containsExactly(author3, author2);
 	}
+
+	@Test
+	public void listAuthors_returns_empty_for_given_book() throws Exception {
+		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
+
+		when(bookListDataLoader.load(book)).thenReturn(CompletableFuture.supplyAsync(Collections::emptyList));
+
+		CompletableFuture<List<Author>> result = subject.listAuthors(2, book, bookListDataLoader);
+		List<Author> authors = result.get();
+
+		assertThat(authors)
+			.isEmpty();
+	}
+
 }
