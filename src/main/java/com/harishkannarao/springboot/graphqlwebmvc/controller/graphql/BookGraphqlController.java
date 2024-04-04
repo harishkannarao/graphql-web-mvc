@@ -9,9 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Controller
 public class BookGraphqlController {
@@ -34,5 +37,12 @@ public class BookGraphqlController {
 			createdBook.isPresent() ? "success" : "error",
 			createdBook.orElseThrow()
 		);
+	}
+
+	@QueryMapping(name = "listBooks")
+	public List<Book> books(
+		@Argument(name = "bookIds") List<String> ids) {
+		logger.info("listBooks received for ids {}", ids);
+		return bookDao.list(ids).stream().map(DbEntity::data).toList();
 	}
 }

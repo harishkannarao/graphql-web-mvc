@@ -20,20 +20,17 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BookQueryMutationIT extends AbstractBaseIT {
+public class BookMutationIT extends AbstractBaseIT {
 
 	private final HttpGraphQlTester httpGraphQlTester;
-	private final BookDao bookDao;
 	private final AuthorDao authorDao;
 	private final BookAuthorDao bookAuthorDao;
 
 	@Autowired
-	public BookQueryMutationIT(HttpGraphQlTester httpGraphQlTester,
-														 BookDao bookDao,
-														 AuthorDao authorDao,
-														 BookAuthorDao bookAuthorDao) {
+	public BookMutationIT(HttpGraphQlTester httpGraphQlTester,
+												AuthorDao authorDao,
+												BookAuthorDao bookAuthorDao) {
 		this.httpGraphQlTester = httpGraphQlTester;
-		this.bookDao = bookDao;
 		this.authorDao = authorDao;
 		this.bookAuthorDao = bookAuthorDao;
 	}

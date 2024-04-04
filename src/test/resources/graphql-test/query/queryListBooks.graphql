@@ -1,0 +1,10 @@
+query ListBooks($bookIds: [String!]!, $authorLimit: Int!) {
+    listBooks(bookIds: $bookIds) {
+        id
+        name
+        authors(limit: $authorLimit) {
+            id
+            name
+        }
+    }
+}
