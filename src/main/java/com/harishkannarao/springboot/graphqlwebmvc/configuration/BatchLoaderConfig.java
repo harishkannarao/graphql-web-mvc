@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.graphql.execution.BatchLoaderRegistry;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,19 +24,13 @@ public class BatchLoaderConfig {
 		BatchLoaderRegistry batchLoaderRegistry,
 		BookAuthorsDataLoader bookAuthorsDataLoader
 	) {
-		return () -> {
-			batchLoaderRegistry
-				.forTypePair(
-					Book.class,
-					(Class<List<DbEntity<Author>>>) Collections.<DbEntity<Author>>emptyList().getClass()
-				)
-				.withName("bookAuthorsLoader")
-				.withOptions(DataLoaderOptions.newOptions()
-					.setMaxBatchSize(env.getRequiredProperty("app.data-loader.max-batch-size", Integer.class))
-				)
-				.registerMappedBatchLoader((books, batchLoaderEnvironment) ->
-					Mono.fromSupplier(() -> bookAuthorsDataLoader.listAuthors(books))
-				);
-		};
+		return () -> batchLoaderRegistry
+			.forTypePair(
+				Book.class,
+				(Class<List<DbEntity<Author>>>) Collections.<DbEntity<Author>>emptyList().getClass())
+			.withName("bookAuthorsLoader")
+			.withOptions(DataLoaderOptions.newOptions()
+				.setMaxBatchSize(env.getRequiredProperty("app.data-loader.max-batch-size", Integer.class)))
+			.registerMappedBatchLoader(bookAuthorsDataLoader);
 	}
 }

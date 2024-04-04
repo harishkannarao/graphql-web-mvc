@@ -6,7 +6,9 @@ import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
+import org.dataloader.BatchLoaderEnvironment;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,10 +16,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Component
-public class BookAuthorsDataLoader {
+public class BookAuthorsDataLoader
+	implements BiFunction<Set<Book>, BatchLoaderEnvironment, Mono<Map<Book, List<DbEntity<Author>>>>>{
 
 	private final BookAuthorDao bookAuthorDao;
 	private final AuthorDao authorDao;
@@ -27,7 +31,14 @@ public class BookAuthorsDataLoader {
 		this.authorDao = authorDao;
 	}
 
-	public Map<Book, List<DbEntity<Author>>> listAuthors(final Set<Book> books) {
+	@Override
+	public Mono<Map<Book, List<DbEntity<Author>>>> apply(
+		Set<Book> books, BatchLoaderEnvironment batchLoaderEnvironment
+	) {
+		return Mono.fromSupplier(() -> listAuthors(books));
+	}
+
+	private Map<Book, List<DbEntity<Author>>> listAuthors(final Set<Book> books) {
 		List<String> bookIds = books.stream().map(Book::id).toList();
 		List<BookAuthor> bookAuthorsList = bookAuthorDao.listByBookIds(bookIds)
 			.stream()
