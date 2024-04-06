@@ -1,0 +1,11 @@
+query ListAuthors($authorIds: [String!]!) {
+    listAuthors(authorIds: $authorIds) {
+        id
+        name
+        books {
+            id
+            name
+            rating
+        }
+    }
+}

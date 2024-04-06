@@ -24,6 +24,11 @@ type Query {
     Operation to list books
     """
     listBooks(bookIds: [String!]!): [Book!]!
+
+    """
+    Operation to list books
+    """
+    listAuthors(authorIds: [String!]!): [Author!]!
 }
 
 type Mutation {
