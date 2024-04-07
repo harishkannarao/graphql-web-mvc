@@ -37,6 +37,19 @@ type Mutation {
     bookInput: mutation payload
     """
     createBook(bookInput: BookInput!): CreateBookResponse
+    """
+    Operation to create author and return the created author.
+    authorInput: mutation payload
+    """
+    createAuthor(authorInput: AuthorInput!): CreateAuthorResponse
+    """
+    Operation to associate book and author and return the created book and author.
+    """
+    associateBookAndAuthor(bookId: String!, authorId: String!): CreateBookAuthorResponse
+    """
+    Operation to create and associate book and author and return the created book and author.
+    """
+    createBookWithAuthor(bookInput: BookInput!, authorInput: AuthorInput!): CreateBookAuthorResponse
 }
 
 interface MutationResponse {
@@ -59,6 +72,12 @@ type CreateBookResponse implements MutationResponse {
     success: Boolean!
     message: String!
     book: Book
+}
+
+type CreateAuthorResponse implements MutationResponse {
+    success: Boolean!
+    message: String!
+    author: Author
 }
 
 type CreateBookAuthorResponse implements MutationResponse {
