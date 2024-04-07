@@ -60,9 +60,7 @@ public class BookGraphqlController {
 	public Map<Author, List<Book>> listAuthors(
 		Set<Author> authors,
 		BatchLoaderEnvironment batchLoaderEnvironment) {
-		final var mappedResult = authorBooksDataLoader.apply(authors, batchLoaderEnvironment)
-			.blockOptional()
-			.orElseThrow();
+		final var mappedResult = authorBooksDataLoader.apply(authors, batchLoaderEnvironment);
 		return mappedResult.entrySet()
 			.stream()
 			.map(authorListEntry ->
