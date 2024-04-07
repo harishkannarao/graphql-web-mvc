@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class AuthorQueryIT extends AbstractBaseIT {
 
 	private final HttpGraphQlTester httpGraphQlTester;
@@ -49,9 +51,11 @@ public class AuthorQueryIT extends AbstractBaseIT {
 		Author author1 = new Author(UUID.randomUUID().toString(), "author-1-" + UUID.randomUUID());
 		Author author2 = new Author(UUID.randomUUID().toString(), "author-2-" + UUID.randomUUID());
 		Author author3 = new Author(UUID.randomUUID().toString(), "author-3-" + UUID.randomUUID());
+		Author author4 = new Author(UUID.randomUUID().toString(), "author-4-" + UUID.randomUUID());
 		authorDao.create(author1);
 		authorDao.create(author2);
 		authorDao.create(author3);
+		authorDao.create(author4);
 
 		BookAuthor book1Author1 = new BookAuthor(book1.id(), author1.id());
 		BookAuthor book1Author2 = new BookAuthor(book1.id(), author2.id());
@@ -64,7 +68,59 @@ public class AuthorQueryIT extends AbstractBaseIT {
 
 		GraphQlTester.Response result = httpGraphQlTester
 			.documentName("query/queryListAuthors")
-			.variable("authorIds", List.of(author1.id(), author2.id(), author3.id()))
+			.variable("authorIds", List.of(author1.id(), author2.id(), author3.id(), author4.id()))
 			.execute();
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors).isEmpty());
+
+		List<Author> authorsResult = result
+			.path("listAuthors")
+			.hasValue()
+			.entityList(Author.class)
+			.get();
+
+		assertThat(authorsResult)
+			.hasSize(4)
+			.contains(author1, author2, author3, author4);
+
+		List<Book> author4Books = result
+			.path("listAuthors[0].books")
+			.hasValue()
+			.entityList(Book.class)
+			.get();
+
+		assertThat(author4Books)
+			.isEmpty();
+
+		List<Book> author3Books = result
+			.path("listAuthors[1].books")
+			.hasValue()
+			.entityList(Book.class)
+			.get();
+
+		assertThat(author3Books)
+			.hasSize(1)
+			.contains(book1);
+
+		List<Book> author2Books = result
+			.path("listAuthors[2].books")
+			.hasValue()
+			.entityList(Book.class)
+			.get();
+
+		assertThat(author2Books)
+			.hasSize(2)
+			.contains(book1, book3);
+
+		List<Book> author1Books = result
+			.path("listAuthors[3].books")
+			.hasValue()
+			.entityList(Book.class)
+			.get();
+
+		assertThat(author1Books)
+			.hasSize(1)
+			.contains(book1);
 	}
 }

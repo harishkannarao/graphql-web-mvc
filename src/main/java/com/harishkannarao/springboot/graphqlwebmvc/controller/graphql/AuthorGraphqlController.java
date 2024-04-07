@@ -35,7 +35,9 @@ public class AuthorGraphqlController {
 	public List<Author> authors(
 		@Argument(name = "authorIds") List<String> ids) {
 		logger.info("listBooks received for ids {}", ids);
-		return authorDao.list(ids).stream().map(DbEntity::data).toList();
+		return authorDao.list(ids).stream()
+			.sorted((o1, o2) -> o2.createdTime().compareTo(o1.createdTime()))
+			.map(DbEntity::data).toList();
 	}
 
 	@SchemaMapping(typeName = "Book", field = "authors")
