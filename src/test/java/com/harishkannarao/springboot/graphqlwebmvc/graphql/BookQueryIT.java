@@ -91,6 +91,16 @@ public class BookQueryIT extends AbstractBaseIT {
 			.hasSize(2)
 			.contains(author3, author2);
 
+		List<Book> author3Books = result
+			.path("listBooks[0].authors[0].books")
+			.hasValue()
+			.entityList(Book.class)
+			.get();
+
+		assertThat(author3Books)
+			.hasSize(1)
+			.contains(book1);
+
 		List<Author> book2Authors = result
 			.path("listBooks[1].authors")
 			.hasValue()
