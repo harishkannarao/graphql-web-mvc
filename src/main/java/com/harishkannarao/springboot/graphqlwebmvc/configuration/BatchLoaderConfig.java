@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.graphql.execution.BatchLoaderRegistry;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,7 @@ public class BatchLoaderConfig {
 			.withName("bookAuthorsLoader")
 			.withOptions(DataLoaderOptions.newOptions()
 				.setMaxBatchSize(env.getRequiredProperty("app.data-loader.max-batch-size", Integer.class)))
-			.registerMappedBatchLoader(bookAuthorsDataLoader);
+			.registerMappedBatchLoader((books, batchLoaderEnvironment) ->
+				Mono.fromSupplier(() -> bookAuthorsDataLoader.apply(books, batchLoaderEnvironment)));
 	}
 }

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class BookAuthorsDataLoader
-	implements BiFunction<Set<Book>, BatchLoaderEnvironment, Mono<Map<Book, List<DbEntity<Author>>>>>{
+	implements BiFunction<Set<Book>, BatchLoaderEnvironment, Map<Book, List<DbEntity<Author>>>>{
 
 	private final BookAuthorDao bookAuthorDao;
 	private final AuthorDao authorDao;
@@ -32,10 +32,10 @@ public class BookAuthorsDataLoader
 	}
 
 	@Override
-	public Mono<Map<Book, List<DbEntity<Author>>>> apply(
-		Set<Book> books, BatchLoaderEnvironment batchLoaderEnvironment
-	) {
-		return Mono.fromSupplier(() -> listAuthors(books));
+	public Map<Book, List<DbEntity<Author>>> apply(
+		Set<Book> books,
+		BatchLoaderEnvironment batchLoaderEnvironment) {
+		return listAuthors(books);
 	}
 
 	private Map<Book, List<DbEntity<Author>>> listAuthors(final Set<Book> books) {

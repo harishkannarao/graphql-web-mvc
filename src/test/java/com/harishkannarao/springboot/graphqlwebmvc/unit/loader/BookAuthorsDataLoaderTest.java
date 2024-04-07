@@ -57,8 +57,7 @@ public class BookAuthorsDataLoaderTest {
 		when(authorDao.list(anyList()))
 			.thenReturn(List.of(author1, author2, author3));
 
-		Mono<Map<Book, List<DbEntity<Author>>>> monoResult = subject.apply(Set.of(book1, book2, book3), batchLoaderEnvironment);
-		Map<Book, List<DbEntity<Author>>> result = monoResult.block();
+		Map<Book, List<DbEntity<Author>>> result = subject.apply(Set.of(book1, book2, book3), batchLoaderEnvironment);
 
 		assertThat(result).hasSize(3);
 		assertThat(result.get(book1))
