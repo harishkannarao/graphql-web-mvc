@@ -1,6 +1,9 @@
 package com.harishkannarao.springboot.graphqlwebmvc.configuration;
 
 import com.harishkannarao.springboot.graphqlwebmvc.validation.NotStartsWithConstraint;
+import graphql.scalars.ExtendedScalars;
+import graphql.scalars.regex.RegexScalar;
+import graphql.schema.GraphQLScalarType;
 import graphql.validation.rules.OnValidationErrorStrategy;
 import graphql.validation.rules.ValidationRules;
 import graphql.validation.schemawiring.ValidationSchemaWiring;
@@ -9,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.graphql.GraphQlSourceBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.regex.Pattern;
 
 @Configuration(proxyBeanMethods = false)
 public class GraphQlConfiguration {
@@ -32,5 +37,21 @@ public class GraphQlConfiguration {
 
 		return (builder) -> builder.configureRuntimeWiring(runtimeWiringBuilder ->
 			runtimeWiringBuilder.directiveWiring(schemaWiring));
+	}
+
+	@Bean
+	public GraphQlSourceBuilderCustomizer dateTimeScalarCustomizer() {
+		return (builder) -> builder.configureRuntimeWiring(runtimeWiringBuilder ->
+			runtimeWiringBuilder.scalar(ExtendedScalars.DateTime));
+	}
+
+	@Bean
+	public GraphQlSourceBuilderCustomizer bookIsbnScalarCustomizer() {
+		GraphQLScalarType isbnScalar = ExtendedScalars.newRegexScalar("ISBN")
+			.addPattern(Pattern.compile("ISBN-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]+"))
+			.build();
+
+		return (builder) -> builder.configureRuntimeWiring(runtimeWiringBuilder ->
+			runtimeWiringBuilder.scalar(isbnScalar));
 	}
 }
