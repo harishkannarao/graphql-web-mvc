@@ -191,6 +191,28 @@ public class BookMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void createBook_returns_validation_error_for_invalid_isbn() {
+		BookInput bookInput = new BookInput(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID(),
+			BigDecimal.valueOf(2.25),
+			"invalid-isbn");
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createBook")
+			.variable("bookInput", bookInput)
+			.variable("includeAuthors", Boolean.FALSE)
+			.execute();
+
+		response.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).isEqualTo("Variable 'bookInput' has an invalid value: Unable to accept a value into the 'ISBN' scalar.  It does not match the regular expressions.");
+					assertThat(error.getPath()).isEqualTo("");
+				}));
+	}
+
+	@Test
 	public void createBook_successfully_creates_and_does_not_return_created_book_and_message() {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
