@@ -39,10 +39,10 @@ public class AuthorQueryIT extends AbstractBaseIT {
 
 	@Test
 	public void listAuthors_returns_authors_with_books() {
-		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
-		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null);
-		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null);
-		Book book4 = new Book(UUID.randomUUID().toString(), "book-4-" + UUID.randomUUID(), null);
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
+		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		Book book4 = new Book(UUID.randomUUID().toString(), "book-4-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 		bookDao.create(book1);
 		bookDao.create(book2);
 		bookDao.create(book3);

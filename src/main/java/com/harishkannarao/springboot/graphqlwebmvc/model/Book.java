@@ -5,5 +5,6 @@ import java.math.BigDecimal;
 public record Book(
 	String id,
 	String name,
-	BigDecimal rating) {
+	BigDecimal rating,
+	String isbn) {
 }

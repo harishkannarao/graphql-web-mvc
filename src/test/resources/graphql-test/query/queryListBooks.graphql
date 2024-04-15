@@ -3,6 +3,7 @@ query ListBooks($bookIds: [String!]!, $authorLimit: Int!) {
         id
         name
         rating
+        isbn
         authors(limit: $authorLimit) {
             id
             name
@@ -10,6 +11,7 @@ query ListBooks($bookIds: [String!]!, $authorLimit: Int!) {
                 id
                 name
                 rating
+                isbn
             }
         }
     }

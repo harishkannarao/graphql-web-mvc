@@ -6,11 +6,8 @@ import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
-import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
-import org.assertj.core.api.Assertions;
 import org.dataloader.DataLoader;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,7 +30,7 @@ public class AuthorGraphqlControllerTest {
 
 	@Test
 	public void listAuthors_returns_authors_for_given_book() throws Exception {
-		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
+		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
 		Author author1 = new Author(UUID.randomUUID().toString(), "author-1-" + UUID.randomUUID());
 		Author author2 = new Author(UUID.randomUUID().toString(), "author-2-" + UUID.randomUUID());
 		Author author3 = new Author(UUID.randomUUID().toString(), "author-2-" + UUID.randomUUID());
@@ -56,7 +52,7 @@ public class AuthorGraphqlControllerTest {
 
 	@Test
 	public void listAuthors_returns_empty_for_given_book() throws Exception {
-		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
+		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
 
 		when(bookListDataLoader.load(book)).thenReturn(CompletableFuture.supplyAsync(Collections::emptyList));
 

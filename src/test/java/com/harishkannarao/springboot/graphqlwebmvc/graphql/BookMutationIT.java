@@ -3,7 +3,6 @@ package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.AuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
-import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
@@ -40,7 +39,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
-			null);
+			null, "ISBN-2024-04-15-1");
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -67,7 +66,7 @@ public class BookMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_returns_book_with_authors_with_default_limit() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		var author1 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
 		authorDao.create(author1);
@@ -86,7 +85,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25));
+			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1");
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -120,7 +119,7 @@ public class BookMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_returns_book_with_authors_with_limit() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		var author1 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
 		authorDao.create(author1);
@@ -135,7 +134,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25));
+			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1");
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -170,12 +169,12 @@ public class BookMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_returns_validation_error_for_invalid_author_limit() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25));
+			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1");
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -196,7 +195,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
-			null);
+			null, "ISBN-2024-04-15-1");
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -222,7 +221,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
-			null);
+			null, "ISBN-2024-04-15-1");
 		GraphQlTester.Response successResponse = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)

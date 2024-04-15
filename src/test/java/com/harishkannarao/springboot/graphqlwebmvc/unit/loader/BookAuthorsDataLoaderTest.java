@@ -7,17 +7,12 @@ import com.harishkannarao.springboot.graphqlwebmvc.loader.BookAuthorsDataLoader;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
-import org.assertj.core.api.Assertions;
 import org.dataloader.BatchLoaderEnvironment;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import reactor.core.publisher.Mono;
 
-import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,9 +33,9 @@ public class BookAuthorsDataLoaderTest {
 
 	@Test
 	public void test_author_list_returned_for_given_books() {
-		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
-		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null);
-		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null);
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
+		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		DbEntity<Author> author1 = new DbEntity<>(new Author(UUID.randomUUID().toString(), "author-1-" + UUID.randomUUID()), Instant.now(), Instant.now());
 		DbEntity<Author> author2 = new DbEntity<>(new Author(UUID.randomUUID().toString(), "author-2-" + UUID.randomUUID()), Instant.now(), Instant.now());

@@ -67,7 +67,7 @@ input BookInput {
     name: String! @NotBlank @Pattern(regexp: ".{0,100}")
     rating: Float
     publishedDateTime: DateTime
-    isbn: ISBN
+    isbn: ISBN!
 }
 
 input AuthorInput {
@@ -99,7 +99,7 @@ type Book {
     name: String!
     rating: Float
     publishedDateTime: DateTime
-    isbn: ISBN
+    isbn: ISBN!
     authors(limit: Int! = 5 @Positive @Max(value : 100)): [Author!]!
 }
 

@@ -36,7 +36,7 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void create_and_get_by_id() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 		bookDao.create(book);
 		Optional<DbEntity<Book>> result = bookDao.get(book.id());
 
@@ -54,7 +54,7 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void create_throws_exception_for_duplicate_entry() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.create(book);
 
@@ -63,14 +63,14 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void upsert_creates_and_updates_book() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.upsert(book);
 
 		DbEntity<Book> createdBook = bookDao.get(book.id()).orElseThrow();
 		assertThat(createdBook.data()).isEqualTo(book);
 
-		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID(), null);
+		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.upsert(bookUpdate);
 
@@ -84,12 +84,12 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void update_and_get_by_id() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.create(book);
 		var dbEntityBeforeUpdate = bookDao.get(book.id()).orElseThrow();
 
-		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID(), null);
+		var bookUpdate = new Book(book.id(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.update(bookUpdate);
 
@@ -108,7 +108,7 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void delete_by_id() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.create(book);
 
@@ -129,9 +129,9 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void list_by_ids_returns_entities() {
-		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
-		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
-		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.create(book1);
 		bookDao.create(book2);
@@ -147,10 +147,10 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void list_by_rating() {
-		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3));
-		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5));
-		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
-		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3), "ISBN-2024-04-15-1");
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5), "ISBN-2024-04-15-1");
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.create(book1);
 		bookDao.create(book2);
@@ -174,10 +174,10 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void list_by_creation_time() {
-		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3));
-		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5));
-		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
-		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3), "ISBN-2024-04-15-1");
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5), "ISBN-2024-04-15-1");
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.create(book1);
 		bookDao.create(book2);
@@ -201,11 +201,11 @@ public class BookDaoIT extends AbstractBaseIT {
 
 	@Test
 	public void list_with_rating_gt_or_equal_to() {
-		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3));
-		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5));
-		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(3.0));
-		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
-		var book5 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null);
+		var book1 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(2.3), "ISBN-2024-04-15-1");
+		var book2 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(4.5), "ISBN-2024-04-15-1");
+		var book3 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
+		var book4 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book5 = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
 
 		bookDao.create(book1);
 		bookDao.create(book2);
