@@ -120,4 +120,25 @@ public class BookQueryIT extends AbstractBaseIT {
 			.hasSize(1)
 			.contains(author2);
 	}
+
+	@Test
+	public void listBooks_returnsError_forInvalidIsbn() {
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "invalid-isbn");
+
+		bookDao.create(book1);
+
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryListBooks")
+			.variable("bookIds", List.of(book1.id()))
+			.variable("authorLimit", 2)
+			.execute();
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage())
+						.isEqualTo("Can't serialize value (/listBooks[0]/isbn) : Unable to accept a value into the 'ISBN' scalar.  It does not match the regular expressions.");
+					assertThat(error.getPath()).isEqualTo("listBooks[0].isbn");
+				}));
+	}
 }
