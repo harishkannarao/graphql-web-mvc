@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,9 +34,9 @@ public class BookAuthorsDataLoaderTest {
 
 	@Test
 	public void test_author_list_returned_for_given_books() {
-		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
-		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
-		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1", Optional.empty());
+		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
+		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
 
 		DbEntity<Author> author1 = new DbEntity<>(new Author(UUID.randomUUID().toString(), "author-1-" + UUID.randomUUID()), Instant.now(), Instant.now());
 		DbEntity<Author> author2 = new DbEntity<>(new Author(UUID.randomUUID().toString(), "author-2-" + UUID.randomUUID()), Instant.now(), Instant.now());

@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,7 +31,7 @@ public class AuthorGraphqlControllerTest {
 
 	@Test
 	public void listAuthors_returns_authors_for_given_book() throws Exception {
-		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
+		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1", Optional.empty());
 		Author author1 = new Author(UUID.randomUUID().toString(), "author-1-" + UUID.randomUUID());
 		Author author2 = new Author(UUID.randomUUID().toString(), "author-2-" + UUID.randomUUID());
 		Author author3 = new Author(UUID.randomUUID().toString(), "author-2-" + UUID.randomUUID());
@@ -52,7 +53,7 @@ public class AuthorGraphqlControllerTest {
 
 	@Test
 	public void listAuthors_returns_empty_for_given_book() throws Exception {
-		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
+		Book book = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1", Optional.empty());
 
 		when(bookListDataLoader.load(book)).thenReturn(CompletableFuture.supplyAsync(Collections::emptyList));
 

@@ -13,7 +13,11 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +43,10 @@ public class AuthorQueryIT extends AbstractBaseIT {
 
 	@Test
 	public void listAuthors_returns_authors_with_books() {
-		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1");
-		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
-		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
-		Book book4 = new Book(UUID.randomUUID().toString(), "book-4-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1", Optional.of(OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS)));
+		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
+		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
+		Book book4 = new Book(UUID.randomUUID().toString(), "book-4-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
 		bookDao.create(book1);
 		bookDao.create(book2);
 		bookDao.create(book3);

@@ -76,7 +76,7 @@ public class BookMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_returns_book_with_authors_with_default_limit() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.of(OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS)));
 
 		var author1 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
 		authorDao.create(author1);
@@ -97,7 +97,7 @@ public class BookMutationIT extends AbstractBaseIT {
 			book.name(),
 			BigDecimal.valueOf(2.25),
 			"ISBN-2024-04-15-1",
-			Optional.of(OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS)));
+			book.publishedDateTime());
 
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
@@ -118,6 +118,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		assertThat(createBookResponse.book().id()).isEqualTo(bookInput.id());
 		assertThat(createBookResponse.book().name()).isEqualTo(bookInput.name());
 		assertThat(createBookResponse.book().rating()).isEqualTo(bookInput.rating());
+		assertThat(createBookResponse.book().publishedDateTime()).isEqualTo(bookInput.publishedDateTime());
 
 		List<Author> authors = response
 			.path("createBook.book.authors")
@@ -132,7 +133,7 @@ public class BookMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_successfully_creates_and_returns_book_with_authors_with_limit() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
 
 		var author1 = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
 		authorDao.create(author1);
@@ -168,6 +169,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		assertThat(createBookResponse.book().id()).isEqualTo(bookInput.id());
 		assertThat(createBookResponse.book().name()).isEqualTo(bookInput.name());
 		assertThat(createBookResponse.book().rating()).isEqualTo(bookInput.rating());
+		assertThat(createBookResponse.book().publishedDateTime()).isEqualTo(bookInput.publishedDateTime());
 
 		List<Author> authors = response
 			.path("createBook.book.authors")
@@ -182,7 +184,7 @@ public class BookMutationIT extends AbstractBaseIT {
 
 	@Test
 	public void createBook_returns_validation_error_for_invalid_author_limit() {
-		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1");
+		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
 
 		BookInput bookInput = new BookInput(
 			book.id(),

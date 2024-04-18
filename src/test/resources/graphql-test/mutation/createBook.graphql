@@ -12,6 +12,8 @@ mutation CreateBook(
             id,
             name,
             rating
+            publishedDateTime
+            isbn
             authors(limit: $responseAuthorLimit) @include(if: $includeAuthors) {
                 id,
                 name

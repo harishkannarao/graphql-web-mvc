@@ -40,7 +40,13 @@ public class BookGraphqlController {
 	public CreateBookResponse createBook(
 		@Argument(name = "bookInput") BookInput bookInput) {
 		logger.info("createBook bookInput received as {}", bookInput);
-		bookDao.create(new Book(bookInput.id(), bookInput.name(), bookInput.rating(), "ISBN-2024-04-15-1"));
+		bookDao.create(new Book(
+			bookInput.id(),
+			bookInput.name(),
+			bookInput.rating(),
+			"ISBN-2024-04-15-1",
+			bookInput.publishedDateTime()
+		));
 		Optional<Book> createdBook = bookDao.get(bookInput.id()).map(DbEntity::data);
 		return new CreateBookResponse(
 			createdBook.isPresent(),
