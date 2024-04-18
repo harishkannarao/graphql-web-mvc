@@ -8,12 +8,16 @@ import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookInput;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,14 +28,17 @@ public class BookMutationIT extends AbstractBaseIT {
 	private final HttpGraphQlTester httpGraphQlTester;
 	private final AuthorDao authorDao;
 	private final BookAuthorDao bookAuthorDao;
+	private final JsonUtil jsonUtil;
 
 	@Autowired
 	public BookMutationIT(HttpGraphQlTester httpGraphQlTester,
 												AuthorDao authorDao,
-												BookAuthorDao bookAuthorDao) {
+												BookAuthorDao bookAuthorDao,
+												JsonUtil jsonUtil) {
 		this.httpGraphQlTester = httpGraphQlTester;
 		this.authorDao = authorDao;
 		this.bookAuthorDao = bookAuthorDao;
+		this.jsonUtil = jsonUtil;
 	}
 
 	@Test
@@ -39,7 +46,9 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
-			null, "ISBN-2024-04-15-1");
+			null,
+			"ISBN-2024-04-15-1",
+			null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -85,10 +94,13 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1");
+			BigDecimal.valueOf(2.25),
+			"ISBN-2024-04-15-1",
+			OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS));
+
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
-			.variable("bookInput", bookInput)
+			.variable("bookInput", jsonUtil.toJsonNode(bookInput))
 			.variable("includeAuthors", Boolean.TRUE)
 			.execute();
 
@@ -134,7 +146,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1");
+			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1", null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -174,7 +186,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1");
+			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1", null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -196,7 +208,7 @@ public class BookMutationIT extends AbstractBaseIT {
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
 			BigDecimal.valueOf(2.25),
-			"invalid-isbn");
+			"invalid-isbn", null);
 
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
@@ -217,7 +229,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
-			null, "ISBN-2024-04-15-1");
+			null, "ISBN-2024-04-15-1", null);
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -243,7 +255,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
-			null, "ISBN-2024-04-15-1");
+			null, "ISBN-2024-04-15-1", null);
 		GraphQlTester.Response successResponse = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
