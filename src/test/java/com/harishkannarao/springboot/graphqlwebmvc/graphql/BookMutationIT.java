@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,7 @@ public class BookMutationIT extends AbstractBaseIT {
 			"book-" + UUID.randomUUID(),
 			null,
 			"ISBN-2024-04-15-1",
-			null);
+			Optional.empty());
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -96,7 +97,7 @@ public class BookMutationIT extends AbstractBaseIT {
 			book.name(),
 			BigDecimal.valueOf(2.25),
 			"ISBN-2024-04-15-1",
-			OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS));
+			Optional.of(OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS)));
 
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
@@ -146,7 +147,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1", null);
+			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1", Optional.empty());
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -186,7 +187,7 @@ public class BookMutationIT extends AbstractBaseIT {
 		BookInput bookInput = new BookInput(
 			book.id(),
 			book.name(),
-			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1", null);
+			BigDecimal.valueOf(2.25), "ISBN-2024-04-15-1", Optional.empty());
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
 			.variable("bookInput", bookInput)
@@ -208,7 +209,7 @@ public class BookMutationIT extends AbstractBaseIT {
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
 			BigDecimal.valueOf(2.25),
-			"invalid-isbn", null);
+			"invalid-isbn", Optional.empty());
 
 		GraphQlTester.Response response = httpGraphQlTester
 			.documentName("mutation/createBook")
