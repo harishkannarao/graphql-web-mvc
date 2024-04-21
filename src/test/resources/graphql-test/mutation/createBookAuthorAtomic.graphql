@@ -1,0 +1,39 @@
+mutation CreateBookAuthorAtomic(
+    $bookInput: BookInput!,
+    $bookId: String!,
+    $authorInput: AuthorInput!,
+    $authorId: String!
+) {
+    createBook(bookInput: $bookInput) {
+        success
+    }
+    createAuthor(authorInput: $authorInput) {
+        success
+    }
+    associateBookAndAuthor(bookId: $bookId, authorId: $authorId) {
+        success,
+        message,
+        book {
+            id
+            name,
+            isbn,
+            publishedDateTime,
+            rating,
+            authors {
+                id
+                name
+            }
+        }
+        author {
+            id,
+            name,
+            books {
+                id,
+                name,
+                isbn,
+                publishedDateTime,
+                rating
+            }
+        }
+    }
+}

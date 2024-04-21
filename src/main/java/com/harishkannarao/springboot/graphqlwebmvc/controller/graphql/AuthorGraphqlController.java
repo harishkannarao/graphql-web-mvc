@@ -4,16 +4,22 @@ import com.harishkannarao.springboot.graphqlwebmvc.dao.AuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
+import com.harishkannarao.springboot.graphqlwebmvc.model.AuthorInput;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
+import com.harishkannarao.springboot.graphqlwebmvc.model.BookInput;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateAuthorResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
 import org.dataloader.DataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Controller
@@ -29,6 +35,20 @@ public class AuthorGraphqlController {
 		AuthorDao authorDao) {
 		this.bookAuthorDao = bookAuthorDao;
 		this.authorDao = authorDao;
+	}
+
+	@MutationMapping(name = "createAuthor")
+	public CreateAuthorResponse createAuthor(
+		@Argument(name = "authorInput") AuthorInput authorInput) {
+		logger.info("createAuthor authorInput received as {}", authorInput);
+		authorDao.create(new Author(authorInput.id(), authorInput.name()));
+		Optional<Author> createdAuthor = authorDao.get(authorInput.id()).map(DbEntity::data);
+		logger.info("createAuthor authorInput completed for {}", authorInput);
+		return new CreateAuthorResponse(
+			createdAuthor.isPresent(),
+			createdAuthor.isPresent() ? "success" : "error",
+			createdAuthor.orElseThrow()
+		);
 	}
 
 	@QueryMapping(name = "listAuthors")

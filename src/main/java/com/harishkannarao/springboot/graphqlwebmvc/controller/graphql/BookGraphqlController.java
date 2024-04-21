@@ -48,6 +48,7 @@ public class BookGraphqlController {
 			bookInput.publishedDateTime()
 		));
 		Optional<Book> createdBook = bookDao.get(bookInput.id()).map(DbEntity::data);
+		logger.info("createBook bookInput completed for {}", bookInput);
 		return new CreateBookResponse(
 			createdBook.isPresent(),
 			createdBook.isPresent() ? "success" : "error",
