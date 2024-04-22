@@ -47,8 +47,8 @@ public class BookAuthorAssociationGraphqlController {
 		return new CreateBookAuthorResponse(
 			book.isPresent() && author.isPresent(),
 			book.isPresent() && author.isPresent() ? "success" : "error",
-			author.map(DbEntity::data).orElseThrow(),
-			book.map(DbEntity::data).orElseThrow()
+			author.map(DbEntity::data).orElse(null),
+			book.map(DbEntity::data).orElse(null)
 		);
 	}
 }

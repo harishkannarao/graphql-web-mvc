@@ -41,6 +41,9 @@ public class AuthorGraphqlController {
 	public CreateAuthorResponse createAuthor(
 		@Argument(name = "authorInput") AuthorInput authorInput) {
 		logger.info("createAuthor authorInput received as {}", authorInput);
+		if (authorInput.name().equals("bad-author")) {
+			throw new RuntimeException("Bad Author");
+		}
 		authorDao.create(new Author(authorInput.id(), authorInput.name()));
 		Optional<Author> createdAuthor = authorDao.get(authorInput.id()).map(DbEntity::data);
 		logger.info("createAuthor authorInput completed for {}", authorInput);
