@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -36,14 +37,20 @@ public class BookAuthorAssociationGraphqlController {
 	}
 
 	@MutationMapping(name = "associateBookAndAuthor")
+	@Transactional
 	public CreateBookAuthorResponse associateBookAndAuthor(
 		@Argument(name = "bookId") String bookId,
 		@Argument(name = "authorId") String authorId) {
 		logger.info("associateBookAndAuthor received with bookId {} and authorId {}", bookId, authorId);
-		bookAuthorDao.create(new BookAuthor(bookId, authorId));
+
 		Optional<DbEntity<Book>> book = bookDao.get(bookId);
 		Optional<DbEntity<Author>> author = authorDao.get(authorId);
-		logger.info("createBook bookInput completed for bookId {} and authorId {}", bookId, authorId);
+		if (book.isPresent() && author.isPresent()) {
+			bookAuthorDao.create(new BookAuthor(bookId, authorId));
+			logger.info("associateBookAndAuthor completed for bookId {} and authorId {}", bookId, authorId);
+		} else {
+			logger.info("associateBookAndAuthor unsuccessful for bookId {} and authorId {}", bookId, authorId);
+		}
 		return new CreateBookAuthorResponse(
 			book.isPresent() && author.isPresent(),
 			book.isPresent() && author.isPresent() ? "success" : "error",

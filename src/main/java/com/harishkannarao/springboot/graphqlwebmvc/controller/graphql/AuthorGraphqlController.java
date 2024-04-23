@@ -17,6 +17,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class AuthorGraphqlController {
 	}
 
 	@MutationMapping(name = "createAuthor")
+	@Transactional
 	public CreateAuthorResponse createAuthor(
 		@Argument(name = "authorInput") AuthorInput authorInput) {
 		logger.info("createAuthor authorInput received as {}", authorInput);

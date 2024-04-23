@@ -202,10 +202,8 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 		assertThat(associateBookAndAuthor.book().rating()).isEqualTo(bookInput.rating());
 		assertThat(associateBookAndAuthor.author()).isNull();
 
-		// association should be saved successfully
+		// association should not be saved
 		List<DbEntity<BookAuthor>> bookAuthors = bookAuthorDao.listByBookIds(List.of(bookInput.id()));
-		assertThat(bookAuthors)
-			.hasSize(1)
-			.anySatisfy(value -> assertThat(value.data().authorId()).isEqualTo(authorInput.id()));
+		assertThat(bookAuthors).isEmpty();
 	}
 }
