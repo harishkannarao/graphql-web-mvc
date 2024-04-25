@@ -7,7 +7,6 @@ import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
@@ -54,20 +53,17 @@ public class AuthorDao {
 			.update();
 	}
 
-	public void update(Author author) {
-		jdbcClient.sql(UPDATE_SQL)
+	public int update(Author author) {
+		return jdbcClient.sql(UPDATE_SQL)
 			.param(PARAM_DATA, jsonUtil.toJson(author))
 			.param(PARAM_ID, author.id())
 			.update();
 	}
 
 	public void upsert(Author author) {
-		try {
+		int count = update(author);
+		if (count == 0) {
 			create(author);
-		} catch (DuplicateKeyException ex) {
-			logger.debug(ex.getMessage(), ex);
-			logger.info("Author with id %s already exists, so upsert will be done".formatted(author.id()));
-			update(author);
 		}
 	}
 

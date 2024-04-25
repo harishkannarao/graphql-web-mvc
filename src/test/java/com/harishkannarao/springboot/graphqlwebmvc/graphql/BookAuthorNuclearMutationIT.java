@@ -1,6 +1,7 @@
 package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
+import com.harishkannarao.springboot.graphqlwebmvc.dao.AuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
@@ -21,24 +22,26 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
+public class BookAuthorNuclearMutationIT extends AbstractBaseIT {
 
 	private final HttpGraphQlTester httpGraphQlTester;
 	private final BookDao bookDao;
+	private final AuthorDao authorDao;
 	private final BookAuthorDao bookAuthorDao;
 
 	@Autowired
-	public BookAuthorAtomicMutationIT(
+	public BookAuthorNuclearMutationIT(
 		HttpGraphQlTester httpGraphQlTester,
-		BookDao bookDao,
+		BookDao bookDao, AuthorDao authorDao,
 		BookAuthorDao bookAuthorDao) {
 		this.httpGraphQlTester = httpGraphQlTester;
 		this.bookDao = bookDao;
+		this.authorDao = authorDao;
 		this.bookAuthorDao = bookAuthorDao;
 	}
 
 	@Test
-	public void createBookAndAuthor_successfully_creates_and_returns_book_in_atomic_fashion() {
+	public void createBookWithAuthor_successfully_creates_and_returns_book_in_nuclear_fashion() {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
@@ -51,45 +54,29 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
-			.documentName("mutation/createBookAuthorAtomic")
+			.documentName("mutation/createBookAuthorNuclear")
 			.variable("bookInput", bookInput)
 			.variable("authorInput", authorInput)
-			.variable("bookId", bookInput.id())
-			.variable("authorId", authorInput.id())
 			.execute();
 
 		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
 
-		Boolean createBookResponse = response
-			.path("createBook.success")
-			.hasValue()
-			.entity(Boolean.class)
-			.get();
-		assertThat(createBookResponse).isTrue();
-
-		Boolean createAuthorResponse = response
-			.path("createAuthor.success")
-			.hasValue()
-			.entity(Boolean.class)
-			.get();
-		assertThat(createAuthorResponse).isTrue();
-
-		CreateBookAuthorResponse associateBookAndAuthor = response
-			.path("associateBookAndAuthor")
+		CreateBookAuthorResponse createBookWithAuthor = response
+			.path("createBookWithAuthor")
 			.hasValue()
 			.entity(CreateBookAuthorResponse.class)
 			.get();
 
-		assertThat(associateBookAndAuthor.success()).isTrue();
-		assertThat(associateBookAndAuthor.message()).isEqualTo("success");
-		assertThat(associateBookAndAuthor.book().id()).isEqualTo(bookInput.id());
-		assertThat(associateBookAndAuthor.book().name()).isEqualTo(bookInput.name());
-		assertThat(associateBookAndAuthor.book().rating()).isEqualTo(bookInput.rating());
-		assertThat(associateBookAndAuthor.author().id()).isEqualTo(authorInput.id());
-		assertThat(associateBookAndAuthor.author().name()).isEqualTo(authorInput.name());
+		assertThat(createBookWithAuthor.success()).isTrue();
+		assertThat(createBookWithAuthor.message()).isEqualTo("success");
+		assertThat(createBookWithAuthor.book().id()).isEqualTo(bookInput.id());
+		assertThat(createBookWithAuthor.book().name()).isEqualTo(bookInput.name());
+		assertThat(createBookWithAuthor.book().rating()).isEqualTo(bookInput.rating());
+		assertThat(createBookWithAuthor.author().id()).isEqualTo(authorInput.id());
+		assertThat(createBookWithAuthor.author().name()).isEqualTo(authorInput.name());
 
 		List<Author> bookAuthors = response
-			.path("associateBookAndAuthor.book.authors")
+			.path("createBookWithAuthor.book.authors")
 			.hasValue()
 			.entityList(Author.class)
 			.get();
@@ -98,7 +85,7 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 			.anySatisfy(author -> assertThat(author.id()).isEqualTo(authorInput.id()));
 
 		List<Book> authorBooks = response
-			.path("associateBookAndAuthor.author.books")
+			.path("createBookWithAuthor.author.books")
 			.hasValue()
 			.entityList(Book.class)
 			.get();
@@ -108,7 +95,59 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
-	public void createBookAndAuthor_returns_error_for_blank_author_name() {
+	public void createBookWithAuthor_is_idempotent() {
+		BookInput bookInput = new BookInput(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID(),
+			null,
+			"ISBN-2024-04-15-1",
+			Optional.empty());
+		AuthorInput authorInput = new AuthorInput(
+			UUID.randomUUID().toString(),
+			"author-" + UUID.randomUUID()
+		);
+
+		GraphQlTester.Response firstResponse = httpGraphQlTester
+			.documentName("mutation/createBookAuthorNuclear")
+			.variable("bookInput", bookInput)
+			.variable("authorInput", authorInput)
+			.execute();
+
+		firstResponse.errors().satisfy(errors -> assertThat(errors).isEmpty());
+
+		CreateBookAuthorResponse firstCall = firstResponse
+			.path("createBookWithAuthor")
+			.hasValue()
+			.entity(CreateBookAuthorResponse.class)
+			.get();
+
+		assertThat(firstCall.success()).isTrue();
+		assertThat(firstCall.message()).isEqualTo("success");
+		assertThat(firstCall.book().id()).isEqualTo(bookInput.id());
+		assertThat(firstCall.author().id()).isEqualTo(authorInput.id());
+
+		GraphQlTester.Response secondResponse = httpGraphQlTester
+			.documentName("mutation/createBookAuthorNuclear")
+			.variable("bookInput", bookInput)
+			.variable("authorInput", authorInput)
+			.execute();
+
+		secondResponse.errors().satisfy(errors -> assertThat(errors).isEmpty());
+
+		CreateBookAuthorResponse secondCall = secondResponse
+			.path("createBookWithAuthor")
+			.hasValue()
+			.entity(CreateBookAuthorResponse.class)
+			.get();
+
+		assertThat(secondCall.success()).isTrue();
+		assertThat(secondCall.message()).isEqualTo("success");
+		assertThat(secondCall.book().id()).isEqualTo(bookInput.id());
+		assertThat(secondCall.author().id()).isEqualTo(authorInput.id());
+	}
+
+	@Test
+	public void createBookWithAuthor_returns_error_for_blank_author_name() {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
@@ -121,24 +160,22 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
-			.documentName("mutation/createBookAuthorAtomic")
+			.documentName("mutation/createBookAuthorNuclear")
 			.variable("bookInput", bookInput)
 			.variable("authorInput", authorInput)
-			.variable("bookId", bookInput.id())
-			.variable("authorId", authorInput.id())
 			.execute();
 
 		response.errors()
 			.satisfy(errors -> assertThat(errors)
 				.anySatisfy(error -> {
 					assertThat(error.getMessage())
-						.isEqualTo("/createAuthor/authorInput/name must not be blank");
-					assertThat(error.getPath()).isEqualTo("createAuthor");
+						.isEqualTo("/createBookWithAuthor/authorInput/name must not be blank");
+					assertThat(error.getPath()).isEqualTo("createBookWithAuthor");
 				}));
 	}
 
 	@Test
-	public void createBookAndAuthor_returns_error_for_bad_author_name() {
+	public void createBookWithAuthor_returns_error_for_bad_author_name() {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
 			"book-" + UUID.randomUUID(),
@@ -151,11 +188,9 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
-			.documentName("mutation/createBookAuthorAtomic")
+			.documentName("mutation/createBookAuthorNuclear")
 			.variable("bookInput", bookInput)
 			.variable("authorInput", authorInput)
-			.variable("bookId", bookInput.id())
-			.variable("authorId", authorInput.id())
 			.execute();
 
 		// internal error during author creation
@@ -164,38 +199,20 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 				.anySatisfy(error -> {
 					assertThat(error.getMessage())
 						.contains("INTERNAL_ERROR");
-					assertThat(error.getPath()).isEqualTo("createAuthor");
+					assertThat(error.getPath()).isEqualTo("createBookWithAuthor");
 				}));
 
 		response
-			.path("createAuthor")
+			.path("createBookWithAuthor")
 			.valueIsNull();
 
-		Boolean createBookResponse = response
-			.path("createBook.success")
-			.hasValue()
-			.entity(Boolean.class)
-			.get();
-		assertThat(createBookResponse).isTrue();
-
-		// book should be saved successfully
+		// book should not be saved
 		Optional<DbEntity<Book>> bookDbEntity = bookDao.get(bookInput.id());
-		assertThat(bookDbEntity)
-			.isNotEmpty()
-			.hasValueSatisfying(value -> assertThat(value.data().id()).isEqualTo(bookInput.id()));
+		assertThat(bookDbEntity).isEmpty();
 
-		CreateBookAuthorResponse associateBookAndAuthor = response
-			.path("associateBookAndAuthor")
-			.hasValue()
-			.entity(CreateBookAuthorResponse.class)
-			.get();
-
-		assertThat(associateBookAndAuthor.success()).isFalse();
-		assertThat(associateBookAndAuthor.message()).isEqualTo("error");
-		assertThat(associateBookAndAuthor.book().id()).isEqualTo(bookInput.id());
-		assertThat(associateBookAndAuthor.book().name()).isEqualTo(bookInput.name());
-		assertThat(associateBookAndAuthor.book().rating()).isEqualTo(bookInput.rating());
-		assertThat(associateBookAndAuthor.author()).isNull();
+		// author should not be saved
+		Optional<DbEntity<Author>> authorDbEntity = authorDao.get(authorInput.id());
+		assertThat(authorDbEntity).isEmpty();
 
 		// association should not be saved
 		List<DbEntity<BookAuthor>> bookAuthors = bookAuthorDao.listByBookIds(List.of(bookInput.id()));

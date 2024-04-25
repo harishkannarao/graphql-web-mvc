@@ -37,4 +37,21 @@ public class BookService {
 		logger.info("createBook bookInput completed for {}", bookInput);
 		return createdBook;
 	}
+
+	@Transactional
+	public Optional<Book> saveBook(
+		BookInput bookInput
+	) {
+		logger.info("createBook bookInput received as {}", bookInput);
+		bookDao.upsert(new Book(
+			bookInput.id(),
+			bookInput.name(),
+			bookInput.rating(),
+			bookInput.isbn(),
+			bookInput.publishedDateTime()
+		));
+		Optional<Book> createdBook = bookDao.get(bookInput.id()).map(DbEntity::data);
+		logger.info("createBook bookInput completed for {}", bookInput);
+		return createdBook;
+	}
 }

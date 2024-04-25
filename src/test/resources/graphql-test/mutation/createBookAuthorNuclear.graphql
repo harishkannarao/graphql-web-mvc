@@ -1,0 +1,31 @@
+mutation CreateBookAuthorNuclear(
+    $bookInput: BookInput!,
+    $authorInput: AuthorInput!
+) {
+    createBookWithAuthor(authorInput: $authorInput, bookInput: $bookInput) {
+        success,
+        message,
+        book {
+            id
+            name,
+            isbn,
+            publishedDateTime,
+            rating,
+            authors {
+                id
+                name
+            }
+        }
+        author {
+            id,
+            name,
+            books {
+                id,
+                name,
+                isbn,
+                publishedDateTime,
+                rating
+            }
+        }
+    }
+}
