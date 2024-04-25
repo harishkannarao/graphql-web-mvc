@@ -1,14 +1,12 @@
 package com.harishkannarao.springboot.graphqlwebmvc.controller.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.dao.AuthorDao;
-import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.AuthorInput;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
-import com.harishkannarao.springboot.graphqlwebmvc.model.BookInput;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateAuthorResponse;
-import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.service.AuthorService;
 import org.dataloader.DataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,26 +26,19 @@ public class AuthorGraphqlController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final BookAuthorDao bookAuthorDao;
 	private final AuthorDao authorDao;
+	private final AuthorService authorService;
 
 	public AuthorGraphqlController(
-		BookAuthorDao bookAuthorDao,
-		AuthorDao authorDao) {
-		this.bookAuthorDao = bookAuthorDao;
+		AuthorDao authorDao, AuthorService authorService) {
 		this.authorDao = authorDao;
+		this.authorService = authorService;
 	}
 
 	@MutationMapping(name = "createAuthor")
-	@Transactional
 	public CreateAuthorResponse createAuthor(
 		@Argument(name = "authorInput") AuthorInput authorInput) {
-		logger.info("createAuthor authorInput received as {}", authorInput);
-		if (authorInput.name().equals("bad-author")) {
-			throw new RuntimeException("Bad Author");
-		}
-		authorDao.create(new Author(authorInput.id(), authorInput.name()));
-		Optional<Author> createdAuthor = authorDao.get(authorInput.id()).map(DbEntity::data);
+		Optional<Author> createdAuthor = authorService.createAuthor(authorInput);
 		logger.info("createAuthor authorInput completed for {}", authorInput);
 		return new CreateAuthorResponse(
 			createdAuthor.isPresent(),

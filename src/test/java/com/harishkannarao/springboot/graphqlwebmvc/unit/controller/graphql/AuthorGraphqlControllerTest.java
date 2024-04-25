@@ -2,10 +2,10 @@ package com.harishkannarao.springboot.graphqlwebmvc.unit.controller.graphql;
 
 import com.harishkannarao.springboot.graphqlwebmvc.controller.graphql.AuthorGraphqlController;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.AuthorDao;
-import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.entity.DbEntity;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
+import com.harishkannarao.springboot.graphqlwebmvc.service.AuthorService;
 import org.dataloader.DataLoader;
 import org.junit.jupiter.api.Test;
 
@@ -23,11 +23,11 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 public class AuthorGraphqlControllerTest {
-	private final BookAuthorDao bookAuthorDao = mock(BookAuthorDao.class);
 	private final AuthorDao authorDao = mock(AuthorDao.class);
+	private final AuthorService authorService = mock(AuthorService.class);
 	private final DataLoader<Book, List<DbEntity<Author>>> bookListDataLoader = mock(DataLoader.class);
 	private final AuthorGraphqlController subject =
-		new AuthorGraphqlController(bookAuthorDao, authorDao);
+		new AuthorGraphqlController(authorDao, authorService);
 
 	@Test
 	public void listAuthors_returns_authors_for_given_book() throws Exception {

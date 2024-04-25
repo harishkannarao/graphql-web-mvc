@@ -41,7 +41,6 @@ public class BookGraphqlController {
 	}
 
 	@MutationMapping(name = "createBook")
-	@Transactional
 	public CreateBookResponse createBook(
 		@Argument(name = "bookInput") BookInput bookInput) {
 		Optional<Book> createdBook = bookService.createBook(bookInput);
