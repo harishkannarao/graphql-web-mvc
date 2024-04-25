@@ -7,6 +7,7 @@ import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookInput;
 import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.service.BookService;
 import org.dataloader.BatchLoaderEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +29,14 @@ public class BookGraphqlController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final BookDao bookDao;
+	private final BookService bookService;
 	private final AuthorBooksDataLoader authorBooksDataLoader;
 
 	public BookGraphqlController(
-		BookDao bookDao,
+		BookDao bookDao, BookService bookService,
 		AuthorBooksDataLoader authorBooksDataLoader) {
 		this.bookDao = bookDao;
+		this.bookService = bookService;
 		this.authorBooksDataLoader = authorBooksDataLoader;
 	}
 
@@ -41,16 +44,7 @@ public class BookGraphqlController {
 	@Transactional
 	public CreateBookResponse createBook(
 		@Argument(name = "bookInput") BookInput bookInput) {
-		logger.info("createBook bookInput received as {}", bookInput);
-		bookDao.create(new Book(
-			bookInput.id(),
-			bookInput.name(),
-			bookInput.rating(),
-			"ISBN-2024-04-15-1",
-			bookInput.publishedDateTime()
-		));
-		Optional<Book> createdBook = bookDao.get(bookInput.id()).map(DbEntity::data);
-		logger.info("createBook bookInput completed for {}", bookInput);
+		Optional<Book> createdBook = bookService.createBook(bookInput);
 		return new CreateBookResponse(
 			createdBook.isPresent(),
 			createdBook.isPresent() ? "success" : "error",
