@@ -27,20 +27,20 @@ This project demonstrates the Graphql client and server using Spring Boot Web Mv
 Mutation with CURL
 
     echo '{
-    "query": "mutation createBookWithAuthor($bookInput: BookInput!, $authorInput: AuthorInput!) {\n  createBookWithAuthor(authorInput: $authorInput, bookInput: $bookInput) {\n    success\n    message\n    book {\n      id\n      name\n      isbn\n      publishedDateTime\n      rating\n      authors(limit: 5) {\n        id\n        name\n      }\n    }\n    author {\n      id\n      name\n      books {\n        id\n        name\n        isbn\n        publishedDateTime\n        rating\n      }\n    }\n  }\n}\n",
-    "variables": {
-      "bookInput": {
-        "id": "1234",
-        "name": "sample-book",
-        "rating": null,
-        "publishedDateTime": "2024-04-25T14:00:00.455Z",
-        "isbn": "ISBN-2024-04-25-001"
-      },
-      "authorInput": {
-        "id": "2345",
-        "name": "sample-author"
-      }
-    }
+        "query": "mutation createBookWithAuthor($bookInput: BookInput!, $authorInput: AuthorInput!) {\n  createBookWithAuthor(authorInput: $authorInput, bookInput: $bookInput) {\n    success\n    message\n    book {\n      id\n      name\n      isbn\n      publishedDateTime\n      rating\n      authors(limit: 5) {\n        id\n        name\n      }\n    }\n    author {\n      id\n      name\n      books {\n        id\n        name\n        isbn\n        publishedDateTime\n        rating\n      }\n    }\n  }\n}\n",
+        "variables": {
+          "bookInput": {
+            "id": "1234",
+            "name": "sample-book",
+            "rating": null,
+            "publishedDateTime": "2024-04-25T14:00:00.455Z",
+            "isbn": "ISBN-2024-04-25-001"
+          },
+          "authorInput": {
+            "id": "2345",
+            "name": "sample-author"
+          }
+        }
     } ' | tr -d '\n' | curl \
     -X POST \
     -H "Content-Type: application/json" \
