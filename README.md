@@ -44,8 +44,6 @@ Mutation with CURL
     } ' | tr -d '\n' | curl \
     -X POST \
     -H "Content-Type: application/json" \
-    -H "X-Auth-Email: CLOUDFLARE_EMAIL" \
-    -H "X-Auth-key: CLOUDFLARE_API_KEY" \
     -s \
     -d @- \
     "http://localhost:8080/graphql-web-mvc/graphql"
