@@ -24,6 +24,45 @@ This project demonstrates the Graphql client and server using Spring Boot Web Mv
 
 ### GraphQL with CURL
 
+Query with CURL
+
+    echo '{
+        "query": "
+            query ListBooks($bookIds: [String!]!, $authorLimit: Int!) {
+                listBooks(bookIds: $bookIds) {
+                    id
+                    name
+                    rating
+                    isbn
+                    publishedDateTime
+                    authors(limit: $authorLimit) {
+                        id
+                        name
+                        books {
+                            id
+                            name
+                            rating
+                            isbn
+                            publishedDateTime
+                        }
+                    }
+                }
+            }
+        ",
+        "variables": {
+          "bookIds": [
+                "1234"
+          ],
+          "authorLimit": 3
+        }
+    } ' | tr -d '\n' | curl \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -s \
+    -d @- \
+    "http://localhost:8080/graphql-web-mvc/graphql" \
+    | jq .
+
 Mutation with CURL
 
     echo '{
@@ -78,6 +117,5 @@ Mutation with CURL
     -H "Content-Type: application/json" \
     -s \
     -d @- \
-    "http://localhost:8080/graphql-web-mvc/graphql"
-
-    
+    "http://localhost:8080/graphql-web-mvc/graphql" \
+    | jq .
