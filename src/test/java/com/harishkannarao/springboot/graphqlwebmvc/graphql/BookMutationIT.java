@@ -75,6 +75,44 @@ public class BookMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void createBook_successfully_creates_and_returns_book_with_empty_authors() {
+		BookInput bookInput = new BookInput(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID(),
+			null,
+			"ISBN-2024-04-15-1",
+			Optional.empty());
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createBook")
+			.variable("bookInput", bookInput)
+			.variable("includeAuthors", Boolean.TRUE)
+			.execute();
+
+		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
+
+		CreateBookResponse createBookResponse = response
+			.path("createBook")
+			.hasValue()
+			.entity(CreateBookResponse.class)
+			.get();
+
+		assertThat(createBookResponse.success()).isTrue();
+		assertThat(createBookResponse.message()).isEqualTo("success");
+		assertThat(createBookResponse.book().id()).isEqualTo(bookInput.id());
+		assertThat(createBookResponse.book().name()).isEqualTo(bookInput.name());
+		assertThat(createBookResponse.book().rating()).isEqualTo(bookInput.rating());
+
+		List<Author> authors = response
+			.path("createBook.book.authors")
+			.hasValue()
+			.entityList(Author.class)
+			.get();
+
+		assertThat(authors)
+			.isEmpty();
+	}
+
+	@Test
 	public void createBook_successfully_creates_and_returns_book_with_authors_with_default_limit() {
 		var book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.of(OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS)));
 
