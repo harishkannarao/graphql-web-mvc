@@ -101,6 +101,12 @@ type Book {
     publishedDateTime: DateTime
     isbn: ISBN!
     authors(limit: Int! = 5 @Positive @Max(value : 100)): [Author!]!
+    publishers: [Publisher!]!
+}
+
+type Publisher {
+    id: ID!
+    name: String!
 }
 
 type Author {
