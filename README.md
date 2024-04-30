@@ -27,7 +27,39 @@ This project demonstrates the Graphql client and server using Spring Boot Web Mv
 Mutation with CURL
 
     echo '{
-        "query": "mutation createBookWithAuthor($bookInput: BookInput!, $authorInput: AuthorInput!) {\n  createBookWithAuthor(authorInput: $authorInput, bookInput: $bookInput) {\n    success\n    message\n    book {\n      id\n      name\n      isbn\n      publishedDateTime\n      rating\n      authors(limit: 5) {\n        id\n        name\n      }\n    }\n    author {\n      id\n      name\n      books {\n        id\n        name\n        isbn\n        publishedDateTime\n        rating\n      }\n    }\n  }\n}\n",
+        "query": "
+            mutation CreateBookAuthorNuclear(
+                $bookInput: BookInput!,
+                $authorInput: AuthorInput!
+            ) {
+                createBookWithAuthor(authorInput: $authorInput, bookInput: $bookInput) {
+                    success,
+                    message,
+                    book {
+                        id
+                        name,
+                        isbn,
+                        publishedDateTime,
+                        rating,
+                        authors {
+                            id
+                            name
+                        }
+                    }
+                    author {
+                        id,
+                        name,
+                        books {
+                            id,
+                            name,
+                            isbn,
+                            publishedDateTime,
+                            rating
+                        }
+                    }
+                }
+            }
+        ",
         "variables": {
           "bookInput": {
             "id": "1234",
