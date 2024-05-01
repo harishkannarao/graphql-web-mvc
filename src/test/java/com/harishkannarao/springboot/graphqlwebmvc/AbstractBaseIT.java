@@ -16,7 +16,9 @@ public abstract class AbstractBaseIT {
 	@DynamicPropertySource
 	static void registerTestProperties(DynamicPropertyRegistry registry) {
 		final int RANDOM_SERVER_PORT = TestSocketUtils.findAvailableTcpPort();
+		final int RANDOM_WIREMOCK_PORT = TestSocketUtils.findAvailableTcpPort();
 		registry.add("server.port", () -> String.valueOf(RANDOM_SERVER_PORT));
+		registry.add("wiremock.port", () -> String.valueOf(RANDOM_WIREMOCK_PORT));
 
 		if (!PostgresTestRunner.isRunning()) {
 			PostgresTestRunner.startWithRandomPorts();
