@@ -1,0 +1,6 @@
+query GetPublishersByBooks($bookIds: [ID!]!) {
+    getPublishersByBooks(bookIds: $bookIds) {
+        id
+        name
+    }
+}

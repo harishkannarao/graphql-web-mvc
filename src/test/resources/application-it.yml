@@ -9,7 +9,7 @@ test:
 
 third-party:
   publisher-service:
-    graphql-url: "http://localhost:${wiremock.port}/graphql"
+    graphql-url: "${PUBLISHER_SERVICE_GRAPHQL_URL:http://localhost:${wiremock.port}/graphql}"
 
 tee:
   filter:
