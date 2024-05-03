@@ -1,6 +1,9 @@
 package com.harishkannarao.springboot.graphqlwebmvc;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.harishkannarao.springboot.graphqlwebmvc.runner.PostgresTestRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -12,6 +15,16 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = DEFINED_PORT)
 @ActiveProfiles("it")
 public abstract class AbstractBaseIT {
+
+	@Autowired
+	protected WireMock wireMock;
+
+	@BeforeEach
+	public void setup() {
+		wireMock.resetMappings();
+		wireMock.resetRequests();
+		wireMock.resetScenarios();
+	}
 
 	@DynamicPropertySource
 	static void registerTestProperties(DynamicPropertyRegistry registry) {
