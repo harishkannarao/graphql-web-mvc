@@ -6,15 +6,16 @@ import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPu
 import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlData;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
+import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
+import io.github.nilwurtz.GraphqlBodyMatcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PublisherGraphqlClientTest extends AbstractBaseIT {
@@ -44,8 +45,12 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(publishers));
 		String publishersJson = jsonUtil.toJson(graphqlResponse);
 
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of(bookId2, bookId1));
 		wireMock.register(
 			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
