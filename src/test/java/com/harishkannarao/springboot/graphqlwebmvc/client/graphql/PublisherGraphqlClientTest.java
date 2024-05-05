@@ -1,14 +1,15 @@
 package com.harishkannarao.springboot.graphqlwebmvc.client.graphql;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPublishers;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
 import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
-import io.github.nilwurtz.GraphqlBodyMatcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -59,5 +60,18 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 			.contains(book1Publishers)
 			.contains(book2Publishers)
 			.hasSize(2);
+
+		List<LoggedRequest> loggedRequests = wireMock.find(postRequestedFor(urlEqualTo("/graphql"))
+			.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
+
+		List<GraphqlRequest> receivedBody = loggedRequests.stream().map(LoggedRequest::getBodyAsString)
+			.map(s -> jsonUtil.fromJson(s, GraphqlRequest.class))
+			.toList();
+		assertThat(receivedBody)
+			.hasSize(1)
+			.anySatisfy(graphqlRequest ->
+				assertThat(graphqlRequest.variables().bookIds())
+				.hasSize(2)
+				.contains(bookId1, bookId2));
 	}
 }
