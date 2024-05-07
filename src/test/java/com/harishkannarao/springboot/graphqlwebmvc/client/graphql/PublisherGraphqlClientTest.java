@@ -4,7 +4,9 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPublishers;
+import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.PublisherQueryResult;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlError;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
@@ -43,7 +45,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		BookWithPublishers book1Publishers = new BookWithPublishers(bookId1, List.of(publisher1, publisher2));
 		BookWithPublishers book2Publishers = new BookWithPublishers(bookId1, List.of(publisher3));
 		List<BookWithPublishers> publishers = List.of(book1Publishers, book2Publishers);
-		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(publishers));
+		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(publishers), null);
 		String publishersJson = jsonUtil.toJson(graphqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
@@ -55,8 +57,9 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
-		List<BookWithPublishers> result = publisherGraphqlClient.queryPublishers(input);
-		assertThat(result)
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(input);
+		assertThat(result.errors()).isEmpty();
+		assertThat(result.data())
 			.contains(book1Publishers)
 			.contains(book2Publishers)
 			.hasSize(2);
@@ -73,5 +76,51 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				assertThat(graphqlRequest.variables().bookIds())
 				.hasSize(2)
 				.contains(bookId1, bookId2));
+	}
+
+	@Test
+	public void queryPublishers_returnsEmpty_whenFieldIsNull() {
+		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(null), null);
+		String publishersJson = jsonUtil.toJson(graphqlResponse);
+
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of());
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
+				.willReturn(WireMock.okJson(publishersJson))
+		);
+
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of());
+		assertThat(result.errors()).isEmpty();
+		assertThat(result.data()).isEmpty();
+	}
+
+	@Test
+	public void queryPublishers_throwsError_onErrorFromRemoteService() {
+		List<GraphqlError> errors = List.of(
+			new GraphqlError("artificial-error", List.of("getPublishersByBooks"))
+		);
+		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(null), errors);
+		String publishersJson = jsonUtil.toJson(graphqlResponse);
+
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of());
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
+				.willReturn(WireMock.okJson(publishersJson))
+		);
+
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of());
+		assertThat(result.data()).isEmpty();
+		assertThat(result.errors())
+			.hasSize(1)
+			.anySatisfy(error -> {
+				assertThat(error.getMessage()).isEqualTo("artificial-error");
+				assertThat(error.getPath()).isEqualTo("getPublishersByBooks");
+			});
 	}
 }
