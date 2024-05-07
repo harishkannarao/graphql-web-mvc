@@ -12,14 +12,17 @@ import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
 import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.client.GraphQlTransportException;
 
 import java.util.List;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PublisherGraphqlClientTest extends AbstractBaseIT {
 
@@ -98,7 +101,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 	}
 
 	@Test
-	public void queryPublishers_throwsError_onErrorFromRemoteService() {
+	public void queryPublishers_returnsErrors_onErrorFromRemoteService() {
 		List<GraphqlError> errors = List.of(
 			new GraphqlError("artificial-error", List.of("getPublishersByBooks"))
 		);
@@ -122,5 +125,40 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				assertThat(error.getMessage()).isEqualTo("artificial-error");
 				assertThat(error.getPath()).isEqualTo("getPublishersByBooks");
 			});
+	}
+
+
+	@Test
+	public void queryPublishers_throwsException_for4XXStatus() {
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of());
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
+				.willReturn(WireMock.badRequest())
+		);
+
+		GraphQlTransportException result = assertThrows(GraphQlTransportException.class, () ->
+			publisherGraphqlClient.queryPublishers(Set.of()));
+		assertThat(result.getMessage()).contains("400 Bad Request from POST");
+		assertThat(result.getCause().getMessage()).contains("400 Bad Request from POST");
+	}
+
+	@Test
+	public void queryPublishers_throwsException_for5XXStatus() {
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of());
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
+				.willReturn(WireMock.serverError())
+		);
+
+		GraphQlTransportException result = assertThrows(GraphQlTransportException.class, () ->
+			publisherGraphqlClient.queryPublishers(Set.of()));
+		assertThat(result.getMessage()).contains("500 Internal Server Error from POST");
+		assertThat(result.getCause().getMessage()).contains("500 Internal Server Error from POST");
 	}
 }
