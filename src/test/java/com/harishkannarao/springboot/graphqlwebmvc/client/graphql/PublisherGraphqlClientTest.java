@@ -12,7 +12,6 @@ import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
 import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.client.GraphQlTransportException;
@@ -60,7 +59,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
-		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(input);
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(input).join();
 		assertThat(result.errors()).isEmpty();
 		assertThat(result.data())
 			.contains(book1Publishers)
@@ -95,7 +94,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
-		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of());
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of()).join();
 		assertThat(result.errors()).isEmpty();
 		assertThat(result.data()).isEmpty();
 	}
@@ -117,7 +116,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
-		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of());
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of()).join();
 		assertThat(result.data()).isEmpty();
 		assertThat(result.errors())
 			.hasSize(1)

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class PublisherGraphqlClient {
@@ -21,7 +22,7 @@ public class PublisherGraphqlClient {
 		this.httpGraphQlClient = httpGraphQlClient.mutate().url(url).build();
 	}
 
-	public PublisherQueryResult queryPublishers(Set<String> bookIds) {
+	public CompletableFuture<PublisherQueryResult> queryPublishers(Set<String> bookIds) {
 		return httpGraphQlClient.documentName("publisher/getPublishersByBooks")
 			.variable("bookIds", bookIds)
 			.execute()
@@ -37,6 +38,6 @@ public class PublisherGraphqlClient {
 					return new PublisherQueryResult(Collections.emptyList(), field.toEntityList(BookWithPublishers.class));
 				}
 			})
-			.block();
+			.toFuture();
 	}
 }
