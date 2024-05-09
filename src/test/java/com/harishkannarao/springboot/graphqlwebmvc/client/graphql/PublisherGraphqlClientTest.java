@@ -15,9 +15,12 @@ import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.client.GraphQlTransportException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,8 +79,8 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 			.hasSize(1)
 			.anySatisfy(graphqlRequest ->
 				assertThat(graphqlRequest.variables().bookIds())
-				.hasSize(2)
-				.contains(bookId1, bookId2));
+					.hasSize(2)
+					.contains(bookId1, bookId2));
 	}
 
 	@Test
@@ -135,13 +138,18 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 			post(urlEqualTo("/graphql"))
 				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
 				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
-				.willReturn(WireMock.badRequest())
+				.willReturn(WireMock.badRequest().withBody("My Bad Request"))
 		);
 
-		GraphQlTransportException result = assertThrows(GraphQlTransportException.class, () ->
-			publisherGraphqlClient.queryPublishers(Set.of()));
+		CompletionException result = assertThrows(CompletionException.class, () ->
+			publisherGraphqlClient.queryPublishers(Set.of()).join());
 		assertThat(result.getMessage()).contains("400 Bad Request from POST");
 		assertThat(result.getCause().getMessage()).contains("400 Bad Request from POST");
+		assertThat(result.getCause().getCause())
+			.isInstanceOfSatisfying(WebClientResponseException.class, e -> {
+				assertThat(e.getStatusCode().value()).isEqualTo(400);
+				assertThat(e.getResponseBodyAsString()).contains("My Bad Request");
+			});
 	}
 
 	@Test
@@ -152,12 +160,17 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 			post(urlEqualTo("/graphql"))
 				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
 				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
-				.willReturn(WireMock.serverError())
+				.willReturn(WireMock.serverError().withBody("MY INTERNAL SERVER ERROR"))
 		);
 
-		GraphQlTransportException result = assertThrows(GraphQlTransportException.class, () ->
-			publisherGraphqlClient.queryPublishers(Set.of()));
+		CompletionException result = assertThrows(CompletionException.class, () ->
+			publisherGraphqlClient.queryPublishers(Set.of()).join());
 		assertThat(result.getMessage()).contains("500 Internal Server Error from POST");
 		assertThat(result.getCause().getMessage()).contains("500 Internal Server Error from POST");
+		assertThat(result.getCause().getCause())
+			.isInstanceOfSatisfying(WebClientResponseException.class, e -> {
+				assertThat(e.getStatusCode().value()).isEqualTo(500);
+				assertThat(e.getResponseBodyAsString()).contains("MY INTERNAL SERVER ERROR");
+			});
 	}
 }
