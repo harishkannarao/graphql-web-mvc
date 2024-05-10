@@ -1,12 +1,19 @@
 package com.harishkannarao.springboot.graphqlwebmvc.graphql;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
+import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPublishers;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.AuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookAuthorDao;
 import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
+import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
+import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
+import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
@@ -20,6 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookQueryIT extends AbstractBaseIT {
@@ -27,16 +36,18 @@ public class BookQueryIT extends AbstractBaseIT {
 	private final BookDao bookDao;
 	private final AuthorDao authorDao;
 	private final BookAuthorDao bookAuthorDao;
+	private final JsonUtil jsonUtil;
 
 	@Autowired
 	public BookQueryIT(HttpGraphQlTester httpGraphQlTester,
 										 BookDao bookDao,
 										 AuthorDao authorDao,
-										 BookAuthorDao bookAuthorDao) {
+										 BookAuthorDao bookAuthorDao, JsonUtil jsonUtil) {
 		this.httpGraphQlTester = httpGraphQlTester;
 		this.bookDao = bookDao;
 		this.authorDao = authorDao;
 		this.bookAuthorDao = bookAuthorDao;
+		this.jsonUtil = jsonUtil;
 	}
 
 	@Test
@@ -65,6 +76,25 @@ public class BookQueryIT extends AbstractBaseIT {
 		bookAuthorDao.create(book1Author2);
 		bookAuthorDao.create(book1Author3);
 		bookAuthorDao.create(book3Author2);
+
+		Publisher publisher1 = new Publisher("pub-id-1", "pub-name-1");
+		Publisher publisher2 = new Publisher("pub-id-2", "pub-name-2");
+		Publisher publisher3 = new Publisher("pub-id-3", "pub-name-3");
+
+		BookWithPublishers book1Publishers = new BookWithPublishers(book1.id(), List.of(publisher1, publisher2));
+		BookWithPublishers book2Publishers = new BookWithPublishers(book2.id(), List.of(publisher3));
+		List<BookWithPublishers> publishers = List.of(book1Publishers, book2Publishers);
+		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(publishers), null);
+		String publishersJson = jsonUtil.toJson(graphqlResponse);
+
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of(book2.id(), book1.id(), book3.id()));
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
+				.willReturn(WireMock.okJson(publishersJson))
+		);
 
 		GraphQlTester.Response result = httpGraphQlTester
 			.documentName("query/queryListBooks")

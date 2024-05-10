@@ -1,9 +1,12 @@
 package com.harishkannarao.springboot.graphqlwebmvc.controller.graphql;
 
+import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.PublisherGraphqlClient;
+import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPublishers;
+import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.PublisherQueryResult;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.graphql.client.HttpGraphQlClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.stereotype.Controller;
 
@@ -16,19 +19,29 @@ import java.util.stream.Collectors;
 @Controller
 public class BookPublisherController {
 
-	private final HttpGraphQlClient httpGraphQlClient;
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final PublisherGraphqlClient publisherGraphqlClient;
 
 	public BookPublisherController(
-		HttpGraphQlClient httpGraphQlClient,
-		@Value("${third-party.publisher-service.graphql-url}") String publisherServiceUrl) {
-		this.httpGraphQlClient = httpGraphQlClient.mutate().url(publisherServiceUrl).build();
+		PublisherGraphqlClient publisherGraphqlClient) {
+		this.publisherGraphqlClient = publisherGraphqlClient;
 	}
 
 	@BatchMapping(typeName = "Book", field = "publishers")
 	public Map<Book, List<Publisher>> listPublishers(
 		Set<Book> books) {
+		Set<String> bookIds = books.stream().map(Book::id).collect(Collectors.toUnmodifiableSet());
+		PublisherQueryResult publisherQueryResult = publisherGraphqlClient.queryPublishers(bookIds).join();
+		if (!publisherQueryResult.errors().isEmpty()) {
+			publisherQueryResult.errors().forEach(error -> log.error(error.toString()));
+			throw new RuntimeException("Publishers lookup by book ids falied");
+		}
+		Map<String, List<Publisher>> publishersByBookId = publisherQueryResult.data().stream()
+			.collect(Collectors.toUnmodifiableMap(BookWithPublishers::bookId, BookWithPublishers::publishers));
 		return books.stream()
-			.map(book -> Map.entry(book, Collections.<Publisher>emptyList()))
-			.collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
+			.collect(Collectors.toUnmodifiableMap(
+				book -> book,
+				book -> publishersByBookId.getOrDefault(book.id(), Collections.emptyList())
+			));
 	}
 }
