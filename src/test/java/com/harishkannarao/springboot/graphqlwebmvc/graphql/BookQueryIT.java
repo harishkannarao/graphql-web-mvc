@@ -9,8 +9,8 @@ import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlData;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
 import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -77,22 +78,13 @@ public class BookQueryIT extends AbstractBaseIT {
 		bookAuthorDao.create(book1Author3);
 		bookAuthorDao.create(book3Author2);
 
-		Publisher publisher1 = new Publisher("pub-id-1", "pub-name-1");
-		Publisher publisher2 = new Publisher("pub-id-2", "pub-name-2");
-		Publisher publisher3 = new Publisher("pub-id-3", "pub-name-3");
-
-		BookWithPublishers book1Publishers = new BookWithPublishers(book1.id(), List.of(publisher1, publisher2));
-		BookWithPublishers book2Publishers = new BookWithPublishers(book2.id(), List.of(publisher3));
-		List<BookWithPublishers> publishers = List.of(book1Publishers, book2Publishers);
-		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(publishers), null);
-		String publishersJson = jsonUtil.toJson(graphqlResponse);
-
+		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(
+			new PublisherGqlData(Collections.emptyList()), null);
+		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
-		String expectedBookIds = jsonUtil.toJson(List.of(book2.id(), book1.id(), book3.id()));
 		wireMock.register(
 			post(urlEqualTo("/graphql"))
 				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
-				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
@@ -122,8 +114,7 @@ public class BookQueryIT extends AbstractBaseIT {
 			.get();
 
 		assertThat(book1Authors)
-			.hasSize(2)
-			.contains(author3, author2);
+			.containsExactlyInAnyOrder(author3, author2);
 
 		List<Book> author3Books = result
 			.path("listBooks[0].authors[0].books")
@@ -132,8 +123,7 @@ public class BookQueryIT extends AbstractBaseIT {
 			.get();
 
 		assertThat(author3Books)
-			.hasSize(1)
-			.contains(book1);
+			.containsExactlyInAnyOrder(book1);
 
 		List<Author> book2Authors = result
 			.path("listBooks[1].authors")
@@ -151,9 +141,84 @@ public class BookQueryIT extends AbstractBaseIT {
 			.get();
 
 		assertThat(book3Authors)
-			.hasSize(1)
-			.contains(author2);
+			.containsExactlyInAnyOrder(author2);
 	}
+
+	@Test
+	public void listBooks_returnsBooks_withPublishers() {
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1", Optional.empty());
+		Book book2 = new Book(UUID.randomUUID().toString(), "book-2-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.of(OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS)));
+		Book book3 = new Book(UUID.randomUUID().toString(), "book-3-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
+		Book book4 = new Book(UUID.randomUUID().toString(), "book-4-" + UUID.randomUUID(), null, "ISBN-2024-04-15-1", Optional.empty());
+		bookDao.create(book1);
+		bookDao.create(book2);
+		bookDao.create(book3);
+		bookDao.create(book4);
+
+		Publisher publisher1 = new Publisher("pub-id-1", "pub-name-1");
+		Publisher publisher2 = new Publisher("pub-id-2", "pub-name-2");
+		Publisher publisher3 = new Publisher("pub-id-3", "pub-name-3");
+
+		BookWithPublishers book1Publishers = new BookWithPublishers(book1.id(), List.of(publisher1, publisher2));
+		BookWithPublishers book2Publishers = new BookWithPublishers(book2.id(), List.of(publisher3));
+		List<BookWithPublishers> publishers = List.of(book1Publishers, book2Publishers);
+		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(publishers), null);
+		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
+
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of(book2.id(), book1.id(), book3.id()));
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
+				.willReturn(WireMock.okJson(publishersJson))
+		);
+
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryListBooks")
+			.variable("bookIds", List.of(book1.id(), book2.id(), book3.id()))
+			.variable("authorLimit", 2)
+			.execute();
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors).isEmpty());
+
+		List<Book> booksResult = result
+			.path("listBooks")
+			.hasValue()
+			.entityList(Book.class)
+			.get();
+
+		assertThat(booksResult)
+			.containsExactlyInAnyOrder(book1, book2, book3);
+
+		List<Publisher> publishersOfBook1 = result
+			.path("listBooks[0].publishers")
+			.hasValue()
+			.entityList(Publisher.class)
+			.get();
+
+		assertThat(publishersOfBook1)
+			.containsExactlyInAnyOrder(publisher1, publisher2);
+
+		List<Publisher> publishersOfBook2 = result
+			.path("listBooks[1].publishers")
+			.hasValue()
+			.entityList(Publisher.class)
+			.get();
+
+		assertThat(publishersOfBook2)
+			.containsExactlyInAnyOrder(publisher3);
+
+		List<Publisher> publishersOfBook3 = result
+			.path("listBooks[2].publishers")
+			.hasValue()
+			.entityList(Publisher.class)
+			.get();
+
+		assertThat(publishersOfBook3).isEmpty();
+	}
+
 
 	@Test
 	public void listBooks_returnsError_forInvalidIsbn() {

@@ -1,10 +1,10 @@
-package com.harishkannarao.springboot.graphqlwebmvc.model;
+package com.harishkannarao.springboot.graphqlwebmvc.model.publisher;
 
 import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPublishers;
 
 import java.util.List;
 
-public record GraphqlData(
+public record PublisherGqlData(
 	List<BookWithPublishers> getPublishersByBooks
 ) {
 }

@@ -5,21 +5,19 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPublishers;
 import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.PublisherQueryResult;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlData;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlError;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlRequest;
-import com.harishkannarao.springboot.graphqlwebmvc.model.GraphqlResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlError;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlRequest;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
 import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.client.GraphQlTransportException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -50,8 +48,8 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		BookWithPublishers book1Publishers = new BookWithPublishers(bookId1, List.of(publisher1, publisher2));
 		BookWithPublishers book2Publishers = new BookWithPublishers(bookId1, List.of(publisher3));
 		List<BookWithPublishers> publishers = List.of(book1Publishers, book2Publishers);
-		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(publishers), null);
-		String publishersJson = jsonUtil.toJson(graphqlResponse);
+		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(publishers), null);
+		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		String expectedBookIds = jsonUtil.toJson(List.of(bookId2, bookId1));
@@ -72,21 +70,21 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		List<LoggedRequest> loggedRequests = wireMock.find(postRequestedFor(urlEqualTo("/graphql"))
 			.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
 
-		List<GraphqlRequest> receivedBody = loggedRequests.stream().map(LoggedRequest::getBodyAsString)
-			.map(s -> jsonUtil.fromJson(s, GraphqlRequest.class))
+		List<PublisherGqlRequest> receivedBody = loggedRequests.stream().map(LoggedRequest::getBodyAsString)
+			.map(s -> jsonUtil.fromJson(s, PublisherGqlRequest.class))
 			.toList();
 		assertThat(receivedBody)
 			.hasSize(1)
-			.anySatisfy(graphqlRequest ->
-				assertThat(graphqlRequest.variables().bookIds())
+			.anySatisfy(publisherGqlRequest ->
+				assertThat(publisherGqlRequest.variables().bookIds())
 					.hasSize(2)
 					.contains(bookId1, bookId2));
 	}
 
 	@Test
 	public void queryPublishers_returnsEmpty_whenFieldIsNull() {
-		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(null), null);
-		String publishersJson = jsonUtil.toJson(graphqlResponse);
+		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(null), null);
+		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		String expectedBookIds = jsonUtil.toJson(List.of());
@@ -104,11 +102,11 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 
 	@Test
 	public void queryPublishers_returnsErrors_onErrorFromRemoteService() {
-		List<GraphqlError> errors = List.of(
-			new GraphqlError("artificial-error", List.of("getPublishersByBooks"))
+		List<PublisherGqlError> errors = List.of(
+			new PublisherGqlError("artificial-error", List.of("getPublishersByBooks"))
 		);
-		GraphqlResponse graphqlResponse = new GraphqlResponse(new GraphqlData(null), errors);
-		String publishersJson = jsonUtil.toJson(graphqlResponse);
+		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(null), errors);
+		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		String expectedBookIds = jsonUtil.toJson(List.of());
