@@ -219,6 +219,38 @@ public class BookQueryIT extends AbstractBaseIT {
 		assertThat(publishersOfBook3).isEmpty();
 	}
 
+	@Test
+	public void listBooks_returnsError_whenPublisherGraphlService_fails() {
+		Book book1 = new Book(UUID.randomUUID().toString(), "book-1-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1", Optional.empty());
+		bookDao.create(book1);
+
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
+		String expectedBookIds = jsonUtil.toJson(List.of(book1.id()));
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.withRequestBody(matchingJsonPath("$.variables.bookIds", equalToJson(expectedBookIds, true, false)))
+				.willReturn(WireMock.serverError().withBody("MY INTERNAL SERVER ERROR"))
+		);
+
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryListBooks")
+			.variable("bookIds", List.of(book1.id()))
+			.variable("authorLimit", 2)
+			.execute();
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage())
+						.contains("INTERNAL_ERROR");
+					assertThat(error.getPath()).isEqualTo("listBooks[0].publishers");
+				}));
+
+		result
+			.path("listBooks")
+			.pathDoesNotExist();
+	}
 
 	@Test
 	public void listBooks_returnsError_forInvalidIsbn() {
