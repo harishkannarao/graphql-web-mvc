@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletionException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PublisherGraphqlClientTest extends AbstractBaseIT {
 
+	private final String requestId = UUID.randomUUID().toString();
 	private final PublisherGraphqlClient publisherGraphqlClient;
 	private final JsonUtil jsonUtil;
 
@@ -60,7 +62,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
-		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(input).join();
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(input, requestId).join();
 		assertThat(result.errors()).isEmpty();
 		assertThat(result.data())
 			.contains(book1Publishers)
@@ -95,7 +97,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
-		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of()).join();
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of(), requestId).join();
 		assertThat(result.errors()).isEmpty();
 		assertThat(result.data()).isEmpty();
 	}
@@ -117,7 +119,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				.willReturn(WireMock.okJson(publishersJson))
 		);
 
-		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of()).join();
+		PublisherQueryResult result = publisherGraphqlClient.queryPublishers(Set.of(), requestId).join();
 		assertThat(result.data()).isEmpty();
 		assertThat(result.errors())
 			.hasSize(1)
@@ -140,7 +142,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		);
 
 		CompletionException result = assertThrows(CompletionException.class, () ->
-			publisherGraphqlClient.queryPublishers(Set.of()).join());
+			publisherGraphqlClient.queryPublishers(Set.of(), requestId).join());
 		assertThat(result.getMessage()).contains("400 Bad Request from POST");
 		assertThat(result.getCause().getMessage()).contains("400 Bad Request from POST");
 		assertThat(result.getCause().getCause())
@@ -162,7 +164,7 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		);
 
 		CompletionException result = assertThrows(CompletionException.class, () ->
-			publisherGraphqlClient.queryPublishers(Set.of()).join());
+			publisherGraphqlClient.queryPublishers(Set.of(), requestId).join());
 		assertThat(result.getMessage()).contains("500 Internal Server Error from POST");
 		assertThat(result.getCause().getMessage()).contains("500 Internal Server Error from POST");
 		assertThat(result.getCause().getCause())
