@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 @Controller
@@ -30,18 +31,23 @@ public class BookPublisherController {
 	@BatchMapping(typeName = "Book", field = "publishers")
 	public Map<Book, List<Publisher>> listPublishers(
 		Set<Book> books) {
-		Set<String> bookIds = books.stream().map(Book::id).collect(Collectors.toUnmodifiableSet());
-		PublisherQueryResult publisherQueryResult = publisherGraphqlClient.queryPublishers(bookIds).join();
-		if (!publisherQueryResult.errors().isEmpty()) {
-			publisherQueryResult.errors().forEach(error -> log.error(error.toString()));
-			throw new RuntimeException("Publishers lookup by book ids falied");
+		try {
+			Set<String> bookIds = books.stream().map(Book::id).collect(Collectors.toUnmodifiableSet());
+			PublisherQueryResult publisherQueryResult = publisherGraphqlClient.queryPublishers(bookIds).join();
+			if (!publisherQueryResult.errors().isEmpty()) {
+				publisherQueryResult.errors().forEach(error -> log.error(error.toString()));
+				throw new RuntimeException("Publishers lookup by book ids falied");
+			}
+			Map<String, List<Publisher>> publishersByBookId = publisherQueryResult.data().stream()
+				.collect(Collectors.toUnmodifiableMap(BookWithPublishers::bookId, BookWithPublishers::publishers));
+			return books.stream()
+				.collect(Collectors.toUnmodifiableMap(
+					book -> book,
+					book -> publishersByBookId.getOrDefault(book.id(), Collections.emptyList())
+				));
+		} catch (CompletionException e) {
+			log.error(e.getMessage(), e);
+			throw e;
 		}
-		Map<String, List<Publisher>> publishersByBookId = publisherQueryResult.data().stream()
-			.collect(Collectors.toUnmodifiableMap(BookWithPublishers::bookId, BookWithPublishers::publishers));
-		return books.stream()
-			.collect(Collectors.toUnmodifiableMap(
-				book -> book,
-				book -> publishersByBookId.getOrDefault(book.id(), Collections.emptyList())
-			));
 	}
 }
