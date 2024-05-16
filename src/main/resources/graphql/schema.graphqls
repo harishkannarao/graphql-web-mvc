@@ -55,6 +55,10 @@ type Mutation {
     Operation to create and associate book and author and return the created book and author.
     """
     createBookWithAuthor(bookInput: BookInput!, authorInput: AuthorInput!): CreateBookAuthorResponse
+    """
+    Operation to create publishers and indicate success or failure.
+    """
+    createPublishers(publishers: [PublisherInput!]!): CreatePublishersResponse
 }
 
 interface MutationResponse {
@@ -75,6 +79,11 @@ input AuthorInput {
     name: String! @NotBlank @Pattern(regexp: ".{0,100}")
 }
 
+input PublisherInput {
+    id: ID! @NotBlank
+    name: String! @NotBlank
+}
+
 type CreateBookResponse implements MutationResponse {
     success: Boolean!
     message: String!
@@ -92,6 +101,11 @@ type CreateBookAuthorResponse implements MutationResponse {
     message: String!
     book: Book
     author: Author
+}
+
+type CreatePublishersResponse implements MutationResponse {
+    success: Boolean!
+    message: String!
 }
 
 type Book {
