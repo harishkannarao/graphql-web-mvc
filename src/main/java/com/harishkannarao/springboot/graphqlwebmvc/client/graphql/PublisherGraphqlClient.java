@@ -11,6 +11,7 @@ import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,8 +40,7 @@ public class PublisherGraphqlClient {
 				ClientResponseField field = response.field("getPublishersByBooks");
 				if (!field.getErrors().isEmpty()) { // response has field errors
 					return new PublisherQueryResult(field.getErrors(), Collections.emptyList());
-				}
-				else {
+				} else {
 					return new PublisherQueryResult(Collections.emptyList(), field.toEntityList(BookWithPublishers.class));
 				}
 			})
@@ -48,7 +48,8 @@ public class PublisherGraphqlClient {
 			.whenComplete((publisherQueryResult, throwable) -> {
 				try {
 					MDC.put(X_REQUEST_ID, requestId);
-					log.error(throwable.getMessage(), throwable);
+					Optional.ofNullable(throwable)
+						.ifPresent(ex -> log.error(ex.getMessage(), ex));
 				} finally {
 					MDC.remove(X_REQUEST_ID);
 				}
