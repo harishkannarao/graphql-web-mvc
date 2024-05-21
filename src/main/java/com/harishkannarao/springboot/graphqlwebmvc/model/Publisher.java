@@ -1,7 +1,9 @@
 package com.harishkannarao.springboot.graphqlwebmvc.model;
 
+import java.util.UUID;
+
 public record Publisher(
-	String id,
+	UUID id,
 	String name
 ) {
 }

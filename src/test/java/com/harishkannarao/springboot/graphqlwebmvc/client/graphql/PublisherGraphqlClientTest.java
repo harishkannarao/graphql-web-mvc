@@ -43,9 +43,9 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		String bookId1 = "book-id-1";
 		String bookId2 = "book-id-2";
 		Set<String> input = Set.of(bookId1, bookId2);
-		Publisher publisher1 = new Publisher("pub-id-1", "pub-name-1");
-		Publisher publisher2 = new Publisher("pub-id-2", "pub-name-2");
-		Publisher publisher3 = new Publisher("pub-id-3", "pub-name-3");
+		Publisher publisher1 = new Publisher(UUID.randomUUID(), "pub-name-1");
+		Publisher publisher2 = new Publisher(UUID.randomUUID(), "pub-name-2");
+		Publisher publisher3 = new Publisher(UUID.randomUUID(), "pub-name-3");
 
 		BookWithPublishers book1Publishers = new BookWithPublishers(bookId1, List.of(publisher1, publisher2));
 		BookWithPublishers book2Publishers = new BookWithPublishers(bookId1, List.of(publisher3));

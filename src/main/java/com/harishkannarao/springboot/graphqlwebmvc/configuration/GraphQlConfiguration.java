@@ -2,7 +2,6 @@ package com.harishkannarao.springboot.graphqlwebmvc.configuration;
 
 import com.harishkannarao.springboot.graphqlwebmvc.validation.NotStartsWithConstraint;
 import graphql.scalars.ExtendedScalars;
-import graphql.scalars.regex.RegexScalar;
 import graphql.schema.GraphQLScalarType;
 import graphql.validation.rules.OnValidationErrorStrategy;
 import graphql.validation.rules.ValidationRules;
@@ -40,9 +39,10 @@ public class GraphQlConfiguration {
 	}
 
 	@Bean
-	public GraphQlSourceBuilderCustomizer dateTimeScalarCustomizer() {
-		return (builder) -> builder.configureRuntimeWiring(runtimeWiringBuilder ->
-			runtimeWiringBuilder.scalar(ExtendedScalars.DateTime));
+	public GraphQlSourceBuilderCustomizer extendedScalarCustomizer() {
+		return (builder) -> builder
+			.configureRuntimeWiring(b -> b.scalar(ExtendedScalars.DateTime))
+			.configureRuntimeWiring(b -> b.scalar(ExtendedScalars.UUID));
 	}
 
 	@Bean

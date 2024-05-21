@@ -155,9 +155,9 @@ public class BookQueryIT extends AbstractBaseIT {
 		bookDao.create(book3);
 		bookDao.create(book4);
 
-		Publisher publisher1 = new Publisher("pub-id-1", "pub-name-1");
-		Publisher publisher2 = new Publisher("pub-id-2", "pub-name-2");
-		Publisher publisher3 = new Publisher("pub-id-3", "pub-name-3");
+		Publisher publisher1 = new Publisher(UUID.randomUUID(), "pub-name-1");
+		Publisher publisher2 = new Publisher(UUID.randomUUID(), "pub-name-2");
+		Publisher publisher3 = new Publisher(UUID.randomUUID(), "pub-name-3");
 
 		BookWithPublishers book1Publishers = new BookWithPublishers(book1.id(), List.of(publisher1, publisher2));
 		BookWithPublishers book2Publishers = new BookWithPublishers(book2.id(), List.of(publisher3));
