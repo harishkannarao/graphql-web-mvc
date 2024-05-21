@@ -1,0 +1,20 @@
+query GetBook($bookId: String!) {
+    getBook(bookId: $bookId) {
+        id
+        name
+        rating
+        isbn
+        publishedDateTime
+        authors {
+            id
+            name
+            books {
+                id
+                name
+                rating
+                isbn
+                publishedDateTime
+            }
+        }
+    }
+}

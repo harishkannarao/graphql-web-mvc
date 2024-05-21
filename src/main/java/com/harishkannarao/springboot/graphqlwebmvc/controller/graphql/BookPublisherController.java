@@ -37,7 +37,7 @@ public class BookPublisherController {
 		PublisherQueryResult publisherQueryResult = publisherGraphqlClient.queryPublishers(bookIds, requestId).join();
 		if (!publisherQueryResult.errors().isEmpty()) {
 			publisherQueryResult.errors().forEach(error -> log.error(error.toString()));
-			throw new RuntimeException("Publishers lookup by book ids falied");
+			throw new RuntimeException("Publishers lookup by book ids falied " + publisherQueryResult.errors());
 		}
 		Map<String, List<Publisher>> publishersByBookId = publisherQueryResult.data().stream()
 			.collect(Collectors.toUnmodifiableMap(BookWithPublishers::bookId, BookWithPublishers::publishers));

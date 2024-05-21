@@ -272,4 +272,57 @@ public class BookQueryIT extends AbstractBaseIT {
 					assertThat(error.getPath()).isEqualTo("listBooks[0].isbn");
 				}));
 	}
+
+	@Test
+	public void getBook_returnsBook_byId_withAuthor() {
+		Book book = new Book(UUID.randomUUID().toString(), "book-" + UUID.randomUUID(), BigDecimal.valueOf(3.0), "ISBN-2024-04-15-1", Optional.empty());
+		bookDao.create(book);
+
+		Author author = new Author(UUID.randomUUID().toString(), "author-" + UUID.randomUUID());
+		authorDao.create(author);
+
+		BookAuthor bookAuthor = new BookAuthor(book.id(), author.id());
+		bookAuthorDao.create(bookAuthor);
+
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryGetBook")
+			.variable("bookId", book.id())
+			.execute();
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors).isEmpty());
+
+		Book bookResult = result
+			.path("getBook")
+			.hasValue()
+			.entity(Book.class)
+			.get();
+
+		assertThat(bookResult)
+			.isEqualTo(book);
+
+		List<Author> bookAuthorsResult = result
+			.path("getBook.authors")
+			.hasValue()
+			.entityList(Author.class)
+			.get();
+
+		assertThat(bookAuthorsResult)
+			.containsExactlyInAnyOrder(author);
+	}
+
+	@Test
+	public void getBook_returnsNull_ifBook_doNot_exists() {
+		GraphQlTester.Response result = httpGraphQlTester
+			.documentName("query/queryGetBook")
+			.variable("bookId", UUID.randomUUID().toString())
+			.execute();
+
+		result.errors()
+			.satisfy(errors -> assertThat(errors).isEmpty());
+
+		result
+			.path("getBook")
+			.valueIsNull();
+	}
 }

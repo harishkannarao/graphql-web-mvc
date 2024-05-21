@@ -57,6 +57,13 @@ public class BookGraphqlController {
 		return bookDao.list(ids).stream().map(DbEntity::data).toList();
 	}
 
+	@QueryMapping(name = "getBook")
+	public Book book(
+		@Argument(name = "bookId") String id) {
+		logger.info("getBook received for id {}", id);
+		return bookDao.get(id).map(DbEntity::data).orElse(null);
+	}
+
 	@BatchMapping(typeName = "Author", field = "books")
 	public Map<Author, List<Book>> listAuthors(
 		Set<Author> authors,
