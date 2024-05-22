@@ -9,8 +9,8 @@ import com.harishkannarao.springboot.graphqlwebmvc.dao.BookDao;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Author;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
-import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlData;
-import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.GetPublishersGqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.GetPublishersGqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
 import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
@@ -78,9 +78,9 @@ public class BookQueryIT extends AbstractBaseIT {
 		bookAuthorDao.create(book1Author3);
 		bookAuthorDao.create(book3Author2);
 
-		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(
-			new PublisherGqlData(Collections.emptyList()), null);
-		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
+		GetPublishersGqlResponse getPublishersGqlResponse = new GetPublishersGqlResponse(
+			new GetPublishersGqlData(Collections.emptyList()), null);
+		String publishersJson = jsonUtil.toJson(getPublishersGqlResponse);
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		wireMock.register(
 			post(urlEqualTo("/graphql"))
@@ -162,8 +162,8 @@ public class BookQueryIT extends AbstractBaseIT {
 		BookWithPublishers book1Publishers = new BookWithPublishers(book1.id(), List.of(publisher1, publisher2));
 		BookWithPublishers book2Publishers = new BookWithPublishers(book2.id(), List.of(publisher3));
 		List<BookWithPublishers> publishers = List.of(book1Publishers, book2Publishers);
-		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(publishers), null);
-		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
+		GetPublishersGqlResponse getPublishersGqlResponse = new GetPublishersGqlResponse(new GetPublishersGqlData(publishers), null);
+		String publishersJson = jsonUtil.toJson(getPublishersGqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		String expectedBookIds = jsonUtil.toJson(List.of(book2.id(), book1.id(), book3.id()));

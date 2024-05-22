@@ -4,11 +4,16 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPublishers;
+import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.CreatePublisherMutationResult;
 import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.PublisherQueryResult;
-import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.PublisherInput;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.CreatePublishersGqlData;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.CreatePublishersGqlRequest;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.CreatePublishersGqlResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.GetPublishersGqlData;
 import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlError;
-import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlRequest;
-import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.PublisherGqlResponse;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.GetPublishersGqlRequest;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.GetPublishersGqlResponse;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Publisher;
 import com.harishkannarao.springboot.graphqlwebmvc.util.FileReaderUtil;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
@@ -50,8 +55,8 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		BookWithPublishers book1Publishers = new BookWithPublishers(bookId1, List.of(publisher1, publisher2));
 		BookWithPublishers book2Publishers = new BookWithPublishers(bookId1, List.of(publisher3));
 		List<BookWithPublishers> publishers = List.of(book1Publishers, book2Publishers);
-		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(publishers), null);
-		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
+		GetPublishersGqlResponse getPublishersGqlResponse = new GetPublishersGqlResponse(new GetPublishersGqlData(publishers), null);
+		String publishersJson = jsonUtil.toJson(getPublishersGqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		String expectedBookIds = jsonUtil.toJson(List.of(bookId2, bookId1));
@@ -72,21 +77,21 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		List<LoggedRequest> loggedRequests = wireMock.find(postRequestedFor(urlEqualTo("/graphql"))
 			.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
 
-		List<PublisherGqlRequest> receivedBody = loggedRequests.stream().map(LoggedRequest::getBodyAsString)
-			.map(s -> jsonUtil.fromJson(s, PublisherGqlRequest.class))
+		List<GetPublishersGqlRequest> receivedBody = loggedRequests.stream().map(LoggedRequest::getBodyAsString)
+			.map(s -> jsonUtil.fromJson(s, GetPublishersGqlRequest.class))
 			.toList();
 		assertThat(receivedBody)
 			.hasSize(1)
-			.anySatisfy(publisherGqlRequest ->
-				assertThat(publisherGqlRequest.variables().bookIds())
+			.anySatisfy(getPublishersGqlRequest ->
+				assertThat(getPublishersGqlRequest.variables().bookIds())
 					.hasSize(2)
 					.contains(bookId1, bookId2));
 	}
 
 	@Test
 	public void queryPublishers_returnsEmpty_whenFieldIsNull() {
-		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(null), null);
-		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
+		GetPublishersGqlResponse getPublishersGqlResponse = new GetPublishersGqlResponse(new GetPublishersGqlData(null), null);
+		String publishersJson = jsonUtil.toJson(getPublishersGqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		String expectedBookIds = jsonUtil.toJson(List.of());
@@ -107,8 +112,8 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 		List<PublisherGqlError> errors = List.of(
 			new PublisherGqlError("artificial-error", List.of("getPublishersByBooks"))
 		);
-		PublisherGqlResponse publisherGqlResponse = new PublisherGqlResponse(new PublisherGqlData(null), errors);
-		String publishersJson = jsonUtil.toJson(publisherGqlResponse);
+		GetPublishersGqlResponse getPublishersGqlResponse = new GetPublishersGqlResponse(new GetPublishersGqlData(null), errors);
+		String publishersJson = jsonUtil.toJson(getPublishersGqlResponse);
 
 		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/getPublishersByBooks.graphql");
 		String expectedBookIds = jsonUtil.toJson(List.of());
@@ -172,5 +177,40 @@ public class PublisherGraphqlClientTest extends AbstractBaseIT {
 				assertThat(e.getStatusCode().value()).isEqualTo(500);
 				assertThat(e.getResponseBodyAsString()).contains("MY INTERNAL SERVER ERROR");
 			});
+	}
+
+	@Test
+	public void createPublishers_returnsTrue_forSuccessful_operation() {
+		CreatePublishersGqlResponse createPublishersGqlResponse = new CreatePublishersGqlResponse(
+			new CreatePublishersGqlData(true), null);
+		String json = jsonUtil.toJson(createPublishersGqlResponse);
+
+		String expectedQuery = FileReaderUtil.readFile("graphql-documents/publisher/createPublishers.graphql");
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.willReturn(WireMock.okJson(json))
+		);
+
+		PublisherInput publisher1 = new PublisherInput(UUID.randomUUID(), "publisher-1");
+		PublisherInput publisher2 = new PublisherInput(UUID.randomUUID(), "publisher-2");
+		Set<PublisherInput> input = Set.of(publisher1, publisher2);
+
+		CreatePublisherMutationResult result = publisherGraphqlClient.createPublishers(input, requestId).join();
+
+		assertThat(result.errors()).isEmpty();
+		assertThat(result.data()).isEqualTo(true);
+
+		List<LoggedRequest> loggedRequests = wireMock.find(postRequestedFor(urlEqualTo("/graphql"))
+			.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
+
+		List<CreatePublishersGqlRequest> receivedBody = loggedRequests.stream().map(LoggedRequest::getBodyAsString)
+			.map(s -> jsonUtil.fromJson(s, CreatePublishersGqlRequest.class))
+			.toList();
+		assertThat(receivedBody)
+			.hasSize(1)
+			.anySatisfy(value ->
+				assertThat(value.variables().publishers())
+					.containsExactlyInAnyOrder(publisher1, publisher2));
 	}
 }

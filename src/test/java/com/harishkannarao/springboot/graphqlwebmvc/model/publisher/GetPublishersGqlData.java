@@ -4,7 +4,7 @@ import com.harishkannarao.springboot.graphqlwebmvc.client.graphql.dto.BookWithPu
 
 import java.util.List;
 
-public record PublisherGqlData(
+public record GetPublishersGqlData(
 	List<BookWithPublishers> getPublishersByBooks
 ) {
 }

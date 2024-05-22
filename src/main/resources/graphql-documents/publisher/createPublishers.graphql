@@ -1,0 +1,3 @@
+query CreatePublishers($publishers: [PublisherInput!]!) {
+    createPublishers(publishers: $publishers)
+}

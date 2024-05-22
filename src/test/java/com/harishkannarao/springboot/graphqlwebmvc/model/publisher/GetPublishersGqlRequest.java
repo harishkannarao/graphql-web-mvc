@@ -1,7 +1,7 @@
 package com.harishkannarao.springboot.graphqlwebmvc.model.publisher;
 
-public record PublisherGqlRequest(
+public record GetPublishersGqlRequest(
 	String query,
-	PublisherGqlVariables variables
+	GetPublishersGqlVariables variables
 ) {
 }
