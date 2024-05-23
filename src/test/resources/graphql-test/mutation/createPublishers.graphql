@@ -1,0 +1,8 @@
+mutation CreatePublishers(
+    $publishers: [PublisherInput!]!
+) {
+    createPublishers(publishers: $publishers) {
+        success
+        message
+    }
+}

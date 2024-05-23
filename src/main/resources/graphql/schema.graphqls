@@ -87,7 +87,7 @@ input AuthorInput {
 }
 
 input PublisherInput {
-    id: UUID! @NotBlank
+    id: UUID!
     name: String! @NotBlank
 }
 
