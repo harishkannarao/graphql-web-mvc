@@ -83,6 +83,41 @@ public class PublisherMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void create_publishers_returns_failure_on_error_from_remote_server() {
+		PublisherInput publisher1 = new PublisherInput(UUID.randomUUID(), "publisher-name-1");
+		PublisherInput publisher2 = new PublisherInput(UUID.randomUUID(), "publisher-name-2");
+		Set<PublisherInput> publishers = Set.of(publisher1, publisher2);
+
+		CreatePublishersGqlResponse createPublishersGqlResponse = new CreatePublishersGqlResponse(
+			new CreatePublishersGqlData(false), null);
+		String json = jsonUtil.toJson(createPublishersGqlResponse);
+
+		String expectedQuery = FileReaderUtil
+			.readFile("graphql-documents/publisher/createPublishers.graphql");
+		wireMock.register(
+			post(urlEqualTo("/graphql"))
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery)))
+				.willReturn(WireMock.okJson(json))
+		);
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createPublishers")
+			.variable("publishers", publishers)
+			.execute();
+
+		response.errors().satisfy(errors -> assertThat(errors).isEmpty());
+
+		CreatePublishersResponse createPublishersResponse = response
+			.path("createPublishers")
+			.hasValue()
+			.entity(CreatePublishersResponse.class)
+			.get();
+
+		assertThat(createPublishersResponse.success()).isFalse();
+		assertThat(createPublishersResponse.message()).isEqualTo("failure");
+	}
+
+	@Test
 	public void create_publishers_returns_error_on_remote_service_failure() {
 		PublisherInput publisher1 = new PublisherInput(UUID.randomUUID(), "publisher-name-1");
 		PublisherInput publisher2 = new PublisherInput(UUID.randomUUID(), "publisher-name-2");

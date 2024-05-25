@@ -61,6 +61,9 @@ public class BookPublisherController {
 		CompletableFuture<CreatePublisherMutationResult> createResponse = publisherGraphqlClient
 			.createPublishers(publisherInputs, requestId);
 		return createResponse
-			.thenApply(result -> new CreatePublishersResponse(result.data(), "success"));
+			.thenApply(result -> new CreatePublishersResponse(
+				result.data(),
+				result.data() ? "success" : "failure")
+			);
 	}
 }
