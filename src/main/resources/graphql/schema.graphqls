@@ -123,6 +123,7 @@ type Book {
     isbn: ISBN!
     authors(limit: Int! = 5 @Positive @Max(value : 100)): [Author!]!
     publishers: [Publisher!]!
+    retailers: [Retailer!]!
 }
 
 type Publisher {
@@ -134,4 +135,9 @@ type Author {
     id: ID!
     name: String!
     books: [Book!]!
+}
+
+type Retailer {
+    id: UUID!
+    name: String!
 }
