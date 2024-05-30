@@ -21,6 +21,7 @@ This project demonstrates the Graphql client and server using Spring Boot Web Mv
 
 * Graphql: http://localhost:8080/graphql-web-mvc/graphql
 * Graphql Schema: http://localhost:8080/graphql-web-mvc/graphql/schema
+* Graphiql: http://localhost:8080/graphql-web-mvc/graphiql
 
 ### GraphQL with CURL
 

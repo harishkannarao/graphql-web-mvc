@@ -9,7 +9,8 @@ spring:
   graphql:
     path: "/graphql"
     graphiql:
-      enabled: false
+      enabled: "${GRAPHIQL_ENABLED:true}"
+      path: "/graphiql"
     schema:
       locations: "classpath:graphql/**/"
       printer:
