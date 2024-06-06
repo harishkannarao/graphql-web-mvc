@@ -30,14 +30,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class PublisherGraphqlClientTest extends AbstractBaseIT {
+public class PublisherGraphqlClientIT extends AbstractBaseIT {
 
 	private final String requestId = UUID.randomUUID().toString();
 	private final PublisherGraphqlClient publisherGraphqlClient;
 	private final JsonUtil jsonUtil;
 
 	@Autowired
-	public PublisherGraphqlClientTest(
+	public PublisherGraphqlClientIT(
 		PublisherGraphqlClient publisherGraphqlClient, JsonUtil jsonUtil) {
 		this.publisherGraphqlClient = publisherGraphqlClient;
 		this.jsonUtil = jsonUtil;

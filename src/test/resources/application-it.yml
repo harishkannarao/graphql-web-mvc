@@ -10,6 +10,8 @@ test:
 third-party:
   publisher-service:
     graphql-url: "${PUBLISHER_SERVICE_GRAPHQL_URL:http://localhost:${wiremock.port}/graphql}"
+  retailer-service:
+      rest-url: "${RETAILER_SERVICE_REST_URL:http://localhost:${wiremock.port}/rest}"
 
 tee:
   filter:
