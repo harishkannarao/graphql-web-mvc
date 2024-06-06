@@ -1,5 +1,6 @@
 package com.harishkannarao.springboot.graphqlwebmvc.client.rest;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
@@ -12,8 +13,14 @@ import java.io.IOException;
 public class RestClientAccessLoggingInterceptor implements ClientHttpRequestInterceptor {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@NotNull
 	@Override
-	public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] body, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
+	public ClientHttpResponse intercept(
+		HttpRequest httpRequest,
+		@NotNull byte[] body,
+		@NotNull ClientHttpRequestExecution clientHttpRequestExecution
+	) throws IOException {
+
 		long startTime = System.currentTimeMillis();
 		int statusCode = 0;
 		String method = httpRequest.getMethod().name();

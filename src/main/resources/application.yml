@@ -21,6 +21,9 @@ spring:
       max-age: "1800s"
 
 app:
+  rest-client:
+    connect-timeout-ms: "${APP_REST_CLIENT_CONNECT_TIMEOUT:3000}"
+    read-timeout-ms: "${APP_REST_CLIENT_READ_TIMEOUT:15000}"
   data-loader:
     max-batch-size: "${APP_DATA_LOADER_MAX_BATCH_SIZE:100}"
   datasource:
