@@ -1,8 +1,10 @@
 package com.harishkannarao.springboot.graphqlwebmvc.client.rest;
 
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.AbstractBaseIT;
 import com.harishkannarao.springboot.graphqlwebmvc.client.rest.dto.BookWithRetailers;
 import com.harishkannarao.springboot.graphqlwebmvc.model.Retailer;
+import com.harishkannarao.springboot.graphqlwebmvc.model.publisher.GetPublishersGqlRequest;
 import com.harishkannarao.springboot.graphqlwebmvc.util.JsonUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +61,17 @@ public class RetailerRestClientIT extends AbstractBaseIT {
 				assertThat(bookWithRetailers.retailers()).containsExactlyInAnyOrder(retailer2, retailer3);
 			})
 			.hasSize(2);
+
+		List<LoggedRequest> loggedRequests = wireMock.find(postRequestedFor(urlEqualTo("/rest")));
+
+		List<String[]> receivedBody = loggedRequests.stream().map(LoggedRequest::getBodyAsString)
+			.map(s -> jsonUtil.fromJson(s, String[].class))
+			.toList();
+		assertThat(receivedBody)
+			.hasSize(1)
+			.anySatisfy(bookIds ->
+				assertThat(bookIds)
+					.hasSize(2)
+					.contains(bookId1, bookId2));
 	}
 }
