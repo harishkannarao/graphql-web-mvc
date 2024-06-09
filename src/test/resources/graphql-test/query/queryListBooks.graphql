@@ -9,6 +9,10 @@ query ListBooks($bookIds: [String!]!, $authorLimit: Int!) {
             id
             name
         }
+        retailers {
+            id
+            name
+        }
         authors(limit: $authorLimit) {
             id
             name
