@@ -28,67 +28,55 @@ import java.util.stream.Stream;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
-    @Autowired
-    private CustomAuthenticationFilter customAuthenticationFilter;
+	@Autowired
+	private CustomAuthenticationFilter customAuthenticationFilter;
 
-    @Autowired(required = false)
-    private List<Consumer<HttpSecurity>> httpSecurityCustomizers;
+	@Value("${app.cors.origin.patterns}")
+	private String originPatterns;
 
-    @Value("${feature.beta.enabled}")
-    private boolean featureBetaEnabled;
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.sessionManagement(sessionManagement ->
+				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.headers(headers ->
+				headers.httpStrictTransportSecurity(hstsConfig -> hstsConfig.includeSubDomains(true)))
+			.cors(cors ->
+				cors.configurationSource(corsConfigurationSource()))
+			.csrf(AbstractHttpConfigurer::disable)
+			.authorizeHttpRequests(this::configureUrlAuthorization)
+			.exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
+				httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(
+					(request, response, accessDeniedException) ->
+						response.setStatus(HttpStatus.FORBIDDEN.value()));
+				httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(
+					new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+			})
+			.addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+		;
+		return http.build();
+	}
 
-    @Value("${cors.origin.patterns}")
-    private String originPatterns;
+	private void configureUrlAuthorization(
+		AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
+		auth.requestMatchers("/rest/greeting").permitAll();
+		auth.requestMatchers("/health").permitAll();
+		auth.requestMatchers("/graphql").permitAll();
+		auth.requestMatchers("/graphql/schema").permitAll();
+		auth.requestMatchers("/graphiql").permitAll();
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        Optional.ofNullable(httpSecurityCustomizers)
-                .stream().flatMap(Collection::stream)
-                .forEach(httpSecurityConsumer -> httpSecurityConsumer.accept(http));
+		auth.anyRequest().denyAll();
+	}
 
-        http
-                .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers ->
-                        headers.httpStrictTransportSecurity(hstsConfig -> hstsConfig.includeSubDomains(true)))
-                .cors(cors ->
-                        cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(this::configureUrlAuthorization)
-                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
-                    httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(
-                            (request, response, accessDeniedException) ->
-                                    response.setStatus(HttpStatus.FORBIDDEN.value()));
-                    httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(
-                            new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-                })
-                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        ;
-        return http.build();
-    }
-
-    private void configureUrlAuthorization(
-            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
-        auth.requestMatchers("/general-data").permitAll();
-        auth.requestMatchers("/user-data").hasAuthority("ROLE_USER");
-        auth.requestMatchers("/admin/**").permitAll();
-
-        if (featureBetaEnabled) {
-            auth.requestMatchers("/beta/user-data").hasAuthority("ROLE_USER");
-        }
-
-        auth.anyRequest().denyAll();
-    }
-
-    private CorsConfigurationSource corsConfigurationSource() {
-        List<String> originPatternList = Stream.of(originPatterns.split(",")).toList();
-        List<String> methods = List.of("GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH", "TRACE");
-        String urlPattern = "/**";
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedMethods(methods);
-        configuration.setAllowedOriginPatterns(originPatternList);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration(urlPattern, configuration);
-        return source;
-    }
+	private CorsConfigurationSource corsConfigurationSource() {
+		List<String> originPatternList = Stream.of(originPatterns.split(",")).toList();
+		List<String> methods = List.of("GET", "PUT", "POST", "DELETE", "OPTIONS", "PATCH", "TRACE");
+		String urlPattern = "/**";
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedMethods(methods);
+		configuration.setAllowedOriginPatterns(originPatternList);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration(urlPattern, configuration);
+		return source;
+	}
 }
