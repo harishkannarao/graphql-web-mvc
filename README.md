@@ -23,6 +23,10 @@ This project demonstrates the Graphql client and server using Spring Boot Web Mv
 * Graphql Schema: http://localhost:8080/graphql-web-mvc/graphql/schema
 * Graphiql: http://localhost:8080/graphql-web-mvc/graphiql
 
+### Verify CORS
+
+    curl -I -X OPTIONS -H "Origin: https://www.example.com" -H 'Access-Control-Request-Method: GET' "http://localhost:8080/graphql-web-mvc/graphql" 2>&1 | grep -i 'Access-Control-Allow-Origin'
+
 ### GraphQL with CURL
 
 Query with CURL
