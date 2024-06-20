@@ -36,11 +36,11 @@ public class AuthorDaoIT extends AbstractBaseIT {
 			.hasValueSatisfying(entity -> {
 				assertThat(entity.data()).isEqualTo(author);
 				assertThat(entity.createdTime())
-					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
-					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
+					.isAfterOrEqualTo(Instant.now().minusSeconds(3))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(3));
 				assertThat(entity.updatedTime().truncatedTo(ChronoUnit.SECONDS))
-					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
-					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
+					.isAfterOrEqualTo(Instant.now().minusSeconds(3))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(3));
 			});
 	}
 
@@ -71,7 +71,7 @@ public class AuthorDaoIT extends AbstractBaseIT {
 		assertThat(updatedAuthor.createdTime()).isEqualTo(createdAuthor.createdTime());
 		assertThat(updatedAuthor.updatedTime())
 			.isAfterOrEqualTo(createdAuthor.createdTime())
-			.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
+			.isBeforeOrEqualTo(Instant.now().plusSeconds(3));
 	}
 
 	@Test

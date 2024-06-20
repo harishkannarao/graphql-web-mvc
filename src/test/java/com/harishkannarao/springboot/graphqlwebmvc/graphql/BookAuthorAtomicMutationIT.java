@@ -14,11 +14,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
+import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.harishkannarao.springboot.graphqlwebmvc.util.AuthorizationTokenConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
@@ -51,6 +53,9 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_ADMIN_TOKEN)
+			.build()
 			.documentName("mutation/createBookAuthorAtomic")
 			.variable("bookInput", bookInput)
 			.variable("authorInput", authorInput)
@@ -108,6 +113,120 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 	}
 
 	@Test
+	public void createBookAndAuthor_returns_forbidden_error_for_non_admin_user() {
+		BookInput bookInput = new BookInput(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID(),
+			null,
+			"ISBN-2024-04-15-1",
+			Optional.empty());
+		AuthorInput authorInput = new AuthorInput(
+			UUID.randomUUID().toString(),
+			"author-" + UUID.randomUUID()
+		);
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_USER_TOKEN)
+			.build()
+			.documentName("mutation/createBookAuthorAtomic")
+			.variable("bookInput", bookInput)
+			.variable("authorInput", authorInput)
+			.variable("bookId", bookInput.id())
+			.variable("authorId", authorInput.id())
+			.execute();
+
+		response
+			.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Forbidden");
+					assertThat(error.getPath()).isEqualTo("associateBookAndAuthor");
+				}))
+			.path("associateBookAndAuthor")
+			.valueIsNull()
+			.path("createBook")
+			.hasValue()
+			.path("createAuthor")
+			.hasValue();
+	}
+
+	@Test
+	public void createBookAndAuthor_returns_unauthorized_error_for_invalid_token() {
+		BookInput bookInput = new BookInput(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID(),
+			null,
+			"ISBN-2024-04-15-1",
+			Optional.empty());
+		AuthorInput authorInput = new AuthorInput(
+			UUID.randomUUID().toString(),
+			"author-" + UUID.randomUUID()
+		);
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_INVALID_TOKEN)
+			.build()
+			.documentName("mutation/createBookAuthorAtomic")
+			.variable("bookInput", bookInput)
+			.variable("authorInput", authorInput)
+			.variable("bookId", bookInput.id())
+			.variable("authorId", authorInput.id())
+			.execute();
+
+		response
+			.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Unauthorized");
+					assertThat(error.getPath()).isEqualTo("associateBookAndAuthor");
+				}))
+			.path("associateBookAndAuthor")
+			.valueIsNull()
+			.path("createBook")
+			.hasValue()
+			.path("createAuthor")
+			.hasValue();
+	}
+
+	@Test
+	public void createBookAndAuthor_returns_unauthorized_error_for_missing_token() {
+		BookInput bookInput = new BookInput(
+			UUID.randomUUID().toString(),
+			"book-" + UUID.randomUUID(),
+			null,
+			"ISBN-2024-04-15-1",
+			Optional.empty());
+		AuthorInput authorInput = new AuthorInput(
+			UUID.randomUUID().toString(),
+			"author-" + UUID.randomUUID()
+		);
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createBookAuthorAtomic")
+			.variable("bookInput", bookInput)
+			.variable("authorInput", authorInput)
+			.variable("bookId", bookInput.id())
+			.variable("authorId", authorInput.id())
+			.execute();
+
+		response
+			.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Unauthorized");
+					assertThat(error.getPath()).isEqualTo("associateBookAndAuthor");
+				}))
+			.path("associateBookAndAuthor")
+			.valueIsNull()
+			.path("createBook")
+			.hasValue()
+			.path("createAuthor")
+			.hasValue();
+	}
+
+	@Test
 	public void createBookAndAuthor_returns_error_for_blank_author_name() {
 		BookInput bookInput = new BookInput(
 			UUID.randomUUID().toString(),
@@ -151,6 +270,9 @@ public class BookAuthorAtomicMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_ADMIN_TOKEN)
+			.build()
 			.documentName("mutation/createBookAuthorAtomic")
 			.variable("bookInput", bookInput)
 			.variable("authorInput", authorInput)

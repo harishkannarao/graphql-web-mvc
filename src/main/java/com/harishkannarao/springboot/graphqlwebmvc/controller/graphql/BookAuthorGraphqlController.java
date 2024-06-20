@@ -6,6 +6,7 @@ import com.harishkannarao.springboot.graphqlwebmvc.model.CreateBookAuthorRespons
 import com.harishkannarao.springboot.graphqlwebmvc.service.BookAuthorService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -19,6 +20,7 @@ public class BookAuthorGraphqlController {
 	}
 
 	@MutationMapping(name = "associateBookAndAuthor")
+	@Secured("ROLE_ROOT_ADMIN")
 	public CreateBookAuthorResponse associateBookAndAuthor(
 		@Argument(name = "bookId") String bookId,
 		@Argument(name = "authorId") String authorId) {

@@ -21,13 +21,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.harishkannarao.springboot.graphqlwebmvc.util.AuthorizationTokenConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PublisherMutationIT extends AbstractBaseIT {
-
-	private static final String BEARER_ADMIN_TOKEN = "Bearer " + "admin-token";
-	private static final String BEARER_USER_TOKEN = "Bearer " + "user-token";
-	private static final String BEARER_INVALID_TOKEN = "Bearer " + "invalid-token";
 
 	private final HttpGraphQlTester httpGraphQlTester;
 	private final JsonUtil jsonUtil;
@@ -77,7 +74,7 @@ public class PublisherMutationIT extends AbstractBaseIT {
 
 		List<LoggedRequest> loggedRequests = wireMock
 			.find(postRequestedFor(urlEqualTo("/graphql"))
-			.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
 
 		List<CreatePublishersGqlRequest> receivedBody = loggedRequests.stream()
 			.map(LoggedRequest::getBodyAsString)
@@ -188,7 +185,6 @@ public class PublisherMutationIT extends AbstractBaseIT {
 			.path("createPublishers")
 			.valueIsNull();
 	}
-
 
 	@Test
 	public void create_publishers_returns_unauthorized_for_invalid_authentication() {
