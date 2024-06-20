@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
-public class BatchLoaderConfig {
+public class BatchLoaderConfiguration {
 
 	@SuppressWarnings("unchecked")
 	@Bean

@@ -15,6 +15,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.util.Collections;
@@ -55,6 +56,7 @@ public class BookPublisherController {
 	}
 
 	@MutationMapping(name = "createPublishers")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public CompletableFuture<CreatePublishersResponse> createPublishers(
 		@Argument(name = "publishers") Set<PublisherInput> publisherInputs,
 		@ContextValue(name = Constants.X_REQUEST_ID) final String requestId) {

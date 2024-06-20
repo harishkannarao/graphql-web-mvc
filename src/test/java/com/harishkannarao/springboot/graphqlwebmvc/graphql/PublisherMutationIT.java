@@ -14,12 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
+import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.harishkannarao.springboot.graphqlwebmvc.util.AuthorizationTokenConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PublisherMutationIT extends AbstractBaseIT {
@@ -52,6 +54,9 @@ public class PublisherMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_ADMIN_TOKEN)
+			.build()
 			.documentName("mutation/createPublishers")
 			.variable("publishers", publishers)
 			.execute();
@@ -69,7 +74,7 @@ public class PublisherMutationIT extends AbstractBaseIT {
 
 		List<LoggedRequest> loggedRequests = wireMock
 			.find(postRequestedFor(urlEqualTo("/graphql"))
-			.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
+				.withRequestBody(matchingJsonPath("$.query", equalTo(expectedQuery))));
 
 		List<CreatePublishersGqlRequest> receivedBody = loggedRequests.stream()
 			.map(LoggedRequest::getBodyAsString)
@@ -101,6 +106,9 @@ public class PublisherMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_ADMIN_TOKEN)
+			.build()
 			.documentName("mutation/createPublishers")
 			.variable("publishers", publishers)
 			.execute();
@@ -133,6 +141,9 @@ public class PublisherMutationIT extends AbstractBaseIT {
 		);
 
 		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_ADMIN_TOKEN)
+			.build()
 			.documentName("mutation/createPublishers")
 			.variable("publishers", publishers)
 			.execute();
@@ -146,6 +157,78 @@ public class PublisherMutationIT extends AbstractBaseIT {
 				}));
 
 		response
+			.path("createPublishers")
+			.valueIsNull();
+	}
+
+	@Test
+	public void create_publishers_returns_forbidden_for_non_admin_users() {
+		PublisherInput publisher1 = new PublisherInput(UUID.randomUUID(), "publisher-name-1");
+		PublisherInput publisher2 = new PublisherInput(UUID.randomUUID(), "publisher-name-2");
+		Set<PublisherInput> publishers = Set.of(publisher1, publisher2);
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_USER_TOKEN)
+			.build()
+			.documentName("mutation/createPublishers")
+			.variable("publishers", publishers)
+			.execute();
+
+		response
+			.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Forbidden");
+					assertThat(error.getPath()).isEqualTo("createPublishers");
+				}))
+			.path("createPublishers")
+			.valueIsNull();
+	}
+
+	@Test
+	public void create_publishers_returns_unauthorized_for_invalid_authentication() {
+		PublisherInput publisher1 = new PublisherInput(UUID.randomUUID(), "publisher-name-1");
+		PublisherInput publisher2 = new PublisherInput(UUID.randomUUID(), "publisher-name-2");
+		Set<PublisherInput> publishers = Set.of(publisher1, publisher2);
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.mutate()
+			.header(HttpHeaders.AUTHORIZATION, BEARER_INVALID_TOKEN)
+			.build()
+			.documentName("mutation/createPublishers")
+			.variable("publishers", publishers)
+			.execute();
+
+		response
+			.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Unauthorized");
+					assertThat(error.getPath()).isEqualTo("createPublishers");
+				}))
+			.path("createPublishers")
+			.valueIsNull();
+	}
+
+	@Test
+	public void create_publishers_returns_unauthorized_for_missing_authentication() {
+		PublisherInput publisher1 = new PublisherInput(UUID.randomUUID(), "publisher-name-1");
+		PublisherInput publisher2 = new PublisherInput(UUID.randomUUID(), "publisher-name-2");
+		Set<PublisherInput> publishers = Set.of(publisher1, publisher2);
+
+		GraphQlTester.Response response = httpGraphQlTester
+			.documentName("mutation/createPublishers")
+			.variable("publishers", publishers)
+			.execute();
+
+		response
+			.errors()
+			.satisfy(errors -> assertThat(errors)
+				.anySatisfy(error -> {
+					assertThat(error.getMessage()).contains("Unauthorized");
+					assertThat(error.getPath()).isEqualTo("createPublishers");
+				}))
 			.path("createPublishers")
 			.valueIsNull();
 	}

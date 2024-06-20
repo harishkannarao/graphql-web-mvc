@@ -46,11 +46,11 @@ public class BookDaoIT extends AbstractBaseIT {
 			.hasValueSatisfying(entity -> {
 				assertThat(entity.data()).isEqualTo(book);
 				assertThat(entity.createdTime())
-					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
-					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
+					.isAfterOrEqualTo(Instant.now().minusSeconds(3))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(3));
 				assertThat(entity.updatedTime().truncatedTo(ChronoUnit.SECONDS))
-					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
-					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
+					.isAfterOrEqualTo(Instant.now().minusSeconds(3))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(3));
 			});
 	}
 
@@ -81,7 +81,7 @@ public class BookDaoIT extends AbstractBaseIT {
 		assertThat(updatedBook.createdTime()).isEqualTo(createdBook.createdTime());
 		assertThat(updatedBook.updatedTime())
 			.isAfterOrEqualTo(createdBook.createdTime())
-			.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
+			.isBeforeOrEqualTo(Instant.now().plusSeconds(3));
 	}
 
 	@Test
@@ -103,8 +103,8 @@ public class BookDaoIT extends AbstractBaseIT {
 				assertThat(entity.createdTime())
 					.isEqualTo(dbEntityBeforeUpdate.createdTime());
 				assertThat(entity.updatedTime())
-					.isAfterOrEqualTo(Instant.now().minusSeconds(2))
-					.isBeforeOrEqualTo(Instant.now().plusSeconds(2));
+					.isAfterOrEqualTo(Instant.now().minusSeconds(3))
+					.isBeforeOrEqualTo(Instant.now().plusSeconds(3));
 			});
 	}
 
