@@ -9,7 +9,6 @@ import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
 import org.dataloader.BatchLoaderEnvironment;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,7 +23,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
 public class BookAuthorsDataLoaderTest {
 
 	private final BookAuthorDao bookAuthorDao = mock(BookAuthorDao.class);
@@ -48,11 +46,24 @@ public class BookAuthorsDataLoaderTest {
 		DbEntity<BookAuthor> book1Author3 = new DbEntity<>(new BookAuthor(book1.id(), author3.data().id()), Instant.now(), Instant.now());
 		DbEntity<BookAuthor> book3Author2 = new DbEntity<>(new BookAuthor(book3.id(), author2.data().id()), Instant.now(), Instant.now());
 
-		when(bookAuthorDao.listByBookIds(anyList()))
-			.thenReturn(List.of(book1Author1, book1Author2, book1Author3, book3Author2));
+		when(bookAuthorDao.listByBookIds(
+			argThat(strings -> {
+				assertThat(strings)
+					.hasSize(3)
+					.contains(book1.id(), book2.id(), book3.id());
+				return true;
+			}))
+		).thenReturn(List.of(book1Author1, book1Author2, book1Author3, book3Author2));
 
-		when(authorDao.list(anyList()))
-			.thenReturn(List.of(author1, author2, author3));
+		when(authorDao.list(
+				argThat(strings -> {
+					assertThat(strings)
+						.hasSize(3)
+						.contains(author1.data().id(), author2.data().id(), author3.data().id());
+					return true;
+				})
+			)
+		).thenReturn(List.of(author1, author2, author3));
 
 		Map<Book, List<DbEntity<Author>>> result = subject.apply(Set.of(book1, book2, book3), batchLoaderEnvironment);
 
