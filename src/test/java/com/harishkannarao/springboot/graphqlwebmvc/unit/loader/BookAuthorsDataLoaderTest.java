@@ -9,7 +9,7 @@ import com.harishkannarao.springboot.graphqlwebmvc.model.Book;
 import com.harishkannarao.springboot.graphqlwebmvc.model.BookAuthor;
 import org.dataloader.BatchLoaderEnvironment;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -65,16 +66,18 @@ public class BookAuthorsDataLoaderTest {
 			.hasSize(1)
 			.contains(author2);
 
-		ArgumentCaptor<List<String>> bookAuthorsCaptor = ArgumentCaptor.forClass((Class) List.class);
-		verify(bookAuthorDao).listByBookIds(bookAuthorsCaptor.capture());
-		assertThat(bookAuthorsCaptor.getValue())
-			.hasSize(3)
-			.contains(book1.id(), book2.id(), book3.id());
+		verify(bookAuthorDao).listByBookIds(argThat(strings -> {
+			assertThat(strings)
+				.hasSize(3)
+				.contains(book1.id(), book2.id(), book3.id());
+			return true;
+		}));
 
-		ArgumentCaptor<List<String>> authorsCaptor = ArgumentCaptor.forClass((Class) List.class);
-		verify(authorDao).list(authorsCaptor.capture());
-		assertThat(authorsCaptor.getValue())
-			.hasSize(3)
-			.contains(author1.data().id(), author2.data().id(), author3.data().id());
+		verify(authorDao).list(argThat(strings -> {
+			assertThat(strings)
+				.hasSize(3)
+				.contains(author1.data().id(), author2.data().id(), author3.data().id());
+			return true;
+		}));
 	}
 }
